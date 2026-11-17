@@ -1,3 +1,4 @@
+import { Escolha } from "../seletores";
 import { useState } from "react";
 import { removerOuArquivarConta, salvarConta, useBanco } from "../banco";
 import { chaveDaFaturaAberta, faturaDoCartao, hojeISO, limiteDisponivel, parseValor, resumoDasContas, saldoDaConta, dataBonita } from "../calculos";
@@ -90,7 +91,8 @@ function FormularioDeConta({ valor, aoFechar }: { valor: Conta | "nova" | null; 
     <Folha aberta={!!valor} titulo={editando ? "Editar conta" : "Nova conta"} aoFechar={aoFechar}>
       <div className="space-y-3">
         <label className="block text-xs text-suave">Nome<input value={nome} onChange={(e) => setNome(e.target.value)} maxLength={40} placeholder="Ex.: Nubank" className="mt-1 min-h-11 w-full rounded-xl border border-borda bg-transparent px-3 text-sm text-texto" /></label>
-        <label className="block text-xs text-suave">Tipo<select value={tipo} onChange={(e) => setTipo(e.target.value as TipoConta)} className="mt-1 min-h-11 w-full rounded-xl border border-borda bg-painel px-3 text-sm text-texto">{TIPOS.map((t) => <option key={t.id} value={t.id}>{t.rotulo}</option>)}</select></label>
+        <div className="block text-xs text-suave">Tipo
+          <Escolha rotulo="Tipo" titulo="Tipo da conta" valor={tipo} aoMudar={(v) => setTipo(v as TipoConta)} opcoes={TIPOS.map((x) => ({ id: x.id, rotulo: x.rotulo }))} /></div>
         <label className="block text-xs text-suave">{tipo === "cartao" ? "Dívida que já existia (opcional, use negativo)" : "Saldo inicial"}<input inputMode="decimal" value={saldo} onChange={(e) => setSaldo(e.target.value)} placeholder="0,00" className="num mt-1 min-h-11 w-full rounded-xl border border-borda bg-transparent px-3 text-sm text-texto" /></label>
         {tipo === "cartao" && <div className="grid grid-cols-3 gap-2">
           <label className="block text-xs text-suave">Limite<input inputMode="decimal" value={limite} onChange={(e) => setLimite(e.target.value)} className="num mt-1 min-h-11 w-full rounded-xl border border-borda bg-transparent px-3 text-sm text-texto" /></label>

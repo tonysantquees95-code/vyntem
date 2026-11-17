@@ -132,7 +132,7 @@ export function App() {
         <nav aria-label="Seções" className="flex-1 space-y-1 overflow-y-auto pr-1">{ABAS.map((a) => <button key={a.id} onClick={() => setAba(a.id)} aria-current={aba === a.id ? "page" : undefined} className={`flex min-h-11 w-full items-center gap-3 rounded-xl px-3 text-left text-sm transition ${aba === a.id ? "bg-neon/15 text-neon shadow-[0_0_18px_-6px_var(--color-neon)]" : "text-suave hover:bg-white/5 hover:text-texto"}`}><Icone nome={a.icone} tam={20} />{a.rotulo}</button>)}</nav>
         <div className="px-2 pt-3 text-[11px] text-suave">{BUILD ? `Versão 1.${BUILD}` : "Versão de desenvolvimento"}</div>
       </aside>
-      <div className="flex min-h-dvh min-w-0 flex-1 flex-col px-4 pb-28 pt-4 sm:pb-10">
+      <div className={`flex min-h-dvh min-w-0 flex-1 flex-col px-4 ${aba === "assistente" ? "pb-28" : "pb-44"} pt-4 sm:pb-10`}>
         <header className="mb-4 flex items-center justify-between gap-2">
           <div className="flex items-center gap-2 sm:hidden">
             <button onClick={() => setMenu(true)} aria-label="Abrir menu" className="grid size-11 flex-none place-items-center rounded-xl text-suave hover:text-texto"><Icone nome="menu" /></button>

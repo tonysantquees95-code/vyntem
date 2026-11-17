@@ -10,6 +10,8 @@ export interface Motor {
   plataforma: "windows" | "android" | "demonstracao";
   recursos: Recursos;
   abrirLink(url: string): Promise<void>;
+  /** Abre a câmera do aparelho e devolve a foto (null = a pessoa desistiu). Só existe onde há câmera de verdade (Android). */
+  tirarFoto?(): Promise<Blob | null>;
   /** Atualização em duas etapas: baixa com andamento e só instala quando a pessoa escolher. */
   baixarAtualizacao(url: string, sha256: string, tamanho: number): Promise<void>;
   progressoAtualizacao(): Promise<ProgressoAtualizacao>;

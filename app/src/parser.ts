@@ -3,7 +3,7 @@
 import type { Banco } from "./dados.ts";
 import { parseValor, somarDias, somarMeses, diasNoMes, inicioDoMes } from "./calculos.ts";
 
-export interface Rascunho { tipo: "receita" | "despesa"; valor: number; data: string; nota: string; categoriaId?: string; contaId?: string; parcelas?: number }
+export interface Rascunho { tipo: "receita" | "despesa"; valor: number; data: string; nota: string; categoriaId?: string; sub?: string; contaId?: string; parcelas?: number }
 
 export const semAcento = (t: string): string => t.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
 
@@ -83,8 +83,10 @@ export function interpretar(textoOriginal: string, banco: Banco, hoje: string): 
   if (!contaId && /\bcartao\b|\bcredito\b/.test(sem)) { const cartoes = contas.filter((c) => c.tipo === "cartao"); if (cartoes.length === 1) contaId = cartoes[0]!.id; }
   if (!contaId && /\bdinheiro\b|\bem especie\b/.test(sem)) contaId = contas.find((c) => c.tipo === "dinheiro")?.id;
 
+  // subcategoria: a que a pessoa disse ("gasolina" em Transporte); entre duas, a de nome mais longo
+  const sub = doTipo.find((c) => c.id === categoriaId)?.subs?.filter((s) => semAcento(s).length >= 3 && tem(sem, semAcento(s))).sort((a, b) => b.length - a.length)[0];
   const nota = limparNota(textoOriginal, bruto);
-  return { tipo, valor, data, nota, ...(categoriaId ? { categoriaId } : {}), ...(contaId ? { contaId } : {}), ...(parcelas ? { parcelas } : {}) };
+  return { tipo, valor, data, nota, ...(categoriaId ? { categoriaId } : {}), ...(sub ? { sub } : {}), ...(contaId ? { contaId } : {}), ...(parcelas ? { parcelas } : {}) };
 }
 
 /** "Gastei R$ 45,00 no mercado ontem" → "Mercado": tira verbos, valor e data, e deixa o que descreve a compra. */

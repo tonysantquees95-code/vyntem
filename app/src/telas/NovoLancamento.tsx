@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { adicionarLancamentos, atualizarLancamento, removerGrupo, removerLancamento, useBanco } from "../banco";
 import { criarParcelas, hojeISO, parseValor, reais } from "../calculos";
 import { novoId, type Lancamento, type TipoLancamento } from "../dados";
@@ -6,6 +6,8 @@ import { apagarFoto, guardarFoto, lerFoto, reduzirFoto } from "../fotos";
 import { Icone } from "../icones";
 import { Aviso, Botao, Folha } from "../ui";
 import { Bolinha } from "../comuns";
+import { OpcoesDeFoto } from "../fotoEntrada";
+import { Escolha, SeletorDeData } from "../seletores";
 import type { Rascunho } from "../parser";
 
 const ROTULOS: { id: TipoLancamento; rotulo: string }[] = [{ id: "despesa", rotulo: "Despesa" }, { id: "receita", rotulo: "Receita" }, { id: "transferencia", rotulo: "Transferência" }];
@@ -31,7 +33,7 @@ export function NovoLancamento({ pedido, aoFechar }: { pedido: PedidoDeLancament
   const [removerFoto, setRemoverFoto] = useState(false);
   const [erro, setErro] = useState("");
   const [confirmaApagar, setConfirmaApagar] = useState(false);
-  const entrada = useRef<HTMLInputElement>(null);
+  const [sub, setSub] = useState<string | undefined>();
 
   // Preenche o formulário toda vez que a folha abre.
   useEffect(() => {
@@ -39,11 +41,11 @@ export function NovoLancamento({ pedido, aoFechar }: { pedido: PedidoDeLancament
     setErro(""); setConfirmaApagar(false); setRemoverFoto(false); setParcelas(1);
     const padraoConta = contas.find((c) => c.tipo !== "cartao")?.id ?? contas[0]?.id ?? "";
     if (e) {
-      setTipo(e.tipo); setValor((e.valor / 100).toFixed(2).replace(".", ",")); setData(e.data); setNota(e.nota); setContaId(e.contaId); setDestinoId(e.contaDestinoId ?? ""); setCategoriaId(e.categoriaId); setFoto(null);
+      setTipo(e.tipo); setValor((e.valor / 100).toFixed(2).replace(".", ",")); setData(e.data); setNota(e.nota); setContaId(e.contaId); setDestinoId(e.contaDestinoId ?? ""); setCategoriaId(e.categoriaId); setSub(e.sub); setFoto(null);
     } else if (pedido.transferencia) {
-      setTipo("transferencia"); setValor((pedido.transferencia.valor / 100).toFixed(2).replace(".", ",")); setData(hojeISO()); setNota("Pagamento da fatura"); setContaId(padraoConta); setDestinoId(pedido.transferencia.destinoId); setCategoriaId(undefined); setFoto(null);
+      setTipo("transferencia"); setValor((pedido.transferencia.valor / 100).toFixed(2).replace(".", ",")); setData(hojeISO()); setNota("Pagamento da fatura"); setContaId(padraoConta); setDestinoId(pedido.transferencia.destinoId); setCategoriaId(undefined); setSub(undefined); setFoto(null);
     } else {
-      setTipo(r?.tipo ?? "despesa"); setValor(r ? (r.valor / 100).toFixed(2).replace(".", ",") : ""); setData(r?.data ?? hojeISO()); setNota(r?.nota ?? ""); setContaId(r?.contaId ?? padraoConta); setDestinoId(""); setCategoriaId(r?.categoriaId); setParcelas(r?.parcelas ?? 1); setFoto(pedido.fotoNova ?? null);
+      setTipo(r?.tipo ?? "despesa"); setValor(r ? (r.valor / 100).toFixed(2).replace(".", ",") : ""); setData(r?.data ?? hojeISO()); setNota(r?.sub && r.nota.toLowerCase() === r.sub.toLowerCase() ? "" : r?.nota ?? ""); setContaId(r?.contaId ?? padraoConta); setDestinoId(""); setCategoriaId(r?.categoriaId); setSub(r?.sub); setParcelas(r?.parcelas ?? 1); setFoto(pedido.fotoNova ?? null);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pedido]);
@@ -60,6 +62,8 @@ export function NovoLancamento({ pedido, aoFechar }: { pedido: PedidoDeLancament
   useEffect(() => { if (tipo === "transferencia") setCategoriaId(undefined); else if (categoriaId && banco.categorias.find((c) => c.id === categoriaId)?.tipo !== tipo) setCategoriaId(undefined); }, [tipo, categoriaId, banco.categorias]);
 
   const categorias = banco.categorias.filter((c) => c.tipo === tipo);
+  const subsDaCategoria = banco.categorias.find((c) => c.id === categoriaId)?.subs ?? [];
+  const escolherCategoria = (id: string) => { if (id !== categoriaId) setSub(undefined); setCategoriaId(id); };
   const conta = banco.contas.find((c) => c.id === contaId);
   const podeParcelar = !e && tipo === "despesa" && conta?.tipo === "cartao";
 
@@ -69,7 +73,7 @@ export function NovoLancamento({ pedido, aoFechar }: { pedido: PedidoDeLancament
     if (!/^\d{4}-\d{2}-\d{2}$/.test(data)) { setErro("Escolha a data."); return; }
     if (!contaId) { setErro("Escolha a conta."); return; }
     if (tipo === "transferencia" && (!destinoId || destinoId === contaId)) { setErro("Escolha duas contas diferentes."); return; }
-    const base = { tipo, contaId, contaDestinoId: tipo === "transferencia" ? destinoId : undefined, categoriaId: tipo === "transferencia" ? undefined : categoriaId, nota: nota.trim().slice(0, 120), origem: e?.origem ?? r?.origem ?? "manual" } as const;
+    const base = { tipo, contaId, contaDestinoId: tipo === "transferencia" ? destinoId : undefined, categoriaId: tipo === "transferencia" ? undefined : categoriaId, sub: tipo !== "transferencia" && categoriaId && sub && subsDaCategoria.includes(sub) ? sub : undefined, nota: nota.trim().slice(0, 120), origem: e?.origem ?? r?.origem ?? "manual" } as const;
     let idDaFoto = e?.id;
     try {
       if (e) {
@@ -114,33 +118,39 @@ export function NovoLancamento({ pedido, aoFechar }: { pedido: PedidoDeLancament
         </label>
 
         <div className="grid grid-cols-2 gap-3">
-          <label className="block text-xs text-suave">Data<input type="date" value={data} onChange={(ev) => setData(ev.target.value)} className="mt-1 min-h-11 w-full rounded-xl border border-borda bg-transparent px-3 text-sm text-texto [color-scheme:dark]" /></label>
-          <label className="block text-xs text-suave">{tipo === "transferencia" ? "Sai de" : "Conta"}
-            <select value={contaId} onChange={(ev) => setContaId(ev.target.value)} className="mt-1 min-h-11 w-full rounded-xl border border-borda bg-painel px-3 text-sm text-texto">{contas.map((c) => <option key={c.id} value={c.id}>{c.nome}</option>)}</select></label>
+          <div className="block text-xs text-suave">Data<SeletorDeData valor={data} aoMudar={setData} hoje={hojeISO()} /></div>
+          <div className="block text-xs text-suave">{tipo === "transferencia" ? "Sai de" : "Conta"}
+            <Escolha rotulo={tipo === "transferencia" ? "Sai de" : "Conta"} valor={contaId} aoMudar={setContaId} opcoes={contas.map((c) => ({ id: c.id, rotulo: c.nome, detalhe: c.tipo === "cartao" ? "Cartão de crédito" : undefined }))} /></div>
         </div>
-        {tipo === "transferencia" && <label className="block text-xs text-suave">Vai para
-          <select value={destinoId} onChange={(ev) => setDestinoId(ev.target.value)} className="mt-1 min-h-11 w-full rounded-xl border border-borda bg-painel px-3 text-sm text-texto"><option value="">Escolha…</option>{contas.filter((c) => c.id !== contaId).map((c) => <option key={c.id} value={c.id}>{c.nome}{c.tipo === "cartao" ? " (pagar fatura)" : ""}</option>)}</select></label>}
+        {tipo === "transferencia" && <div className="block text-xs text-suave">Vai para
+          <Escolha rotulo="Vai para" valor={destinoId} aoMudar={setDestinoId} vazio="Escolha…" opcoes={contas.filter((c) => c.id !== contaId).map((c) => ({ id: c.id, rotulo: c.nome, detalhe: c.tipo === "cartao" ? "Pagar a fatura" : undefined }))} /></div>}
 
         {tipo !== "transferencia" && (
           <div>
             <div className="mb-2 text-xs text-suave">Categoria</div>
             <div className="grid grid-cols-4 gap-2">
-              {categorias.map((c) => <button key={c.id} onClick={() => setCategoriaId(c.id)} aria-pressed={categoriaId === c.id} className={`flex flex-col items-center gap-1 rounded-xl border p-2 text-[11px] transition ${categoriaId === c.id ? "border-neon bg-neon/10 text-texto" : "border-borda text-suave"}`}><Bolinha cat={c} tam={34} /><span className="w-full truncate text-center">{c.nome}</span></button>)}
+              {categorias.map((c) => <button key={c.id} onClick={() => escolherCategoria(c.id)} aria-pressed={categoriaId === c.id} className={`flex flex-col items-center gap-1 rounded-xl border p-2 text-[11px] transition ${categoriaId === c.id ? "border-neon bg-neon/10 text-texto" : "border-borda text-suave"}`}><Bolinha cat={c} tam={34} /><span className="w-full truncate text-center">{c.nome}</span></button>)}
             </div>
+            {subsDaCategoria.length > 0 && (
+              <div className="mt-3">
+                <div className="mb-2 text-xs text-suave">Subcategoria <span className="opacity-70">(opcional)</span></div>
+                <div className="flex flex-wrap gap-2">
+                  {subsDaCategoria.map((s) => <button key={s} onClick={() => setSub(sub === s ? undefined : s)} aria-pressed={sub === s} className={`min-h-9 rounded-full border px-3 text-xs transition ${sub === s ? "border-neon bg-neon/10 text-texto" : "border-borda text-suave"}`}>{s}</button>)}
+                </div>
+              </div>
+            )}
           </div>
         )}
 
         <label className="block text-xs text-suave">Nota<input value={nota} onChange={(ev) => setNota(ev.target.value)} maxLength={120} placeholder="Ex.: mercado do mês" className="mt-1 min-h-11 w-full rounded-xl border border-borda bg-transparent px-3 text-sm text-texto" /></label>
 
-        {podeParcelar && <label className="block text-xs text-suave">Parcelas
-          <select value={parcelas} onChange={(ev) => setParcelas(Number(ev.target.value))} className="mt-1 min-h-11 w-full rounded-xl border border-borda bg-painel px-3 text-sm text-texto">
-            {Array.from({ length: 24 }, (_, i) => i + 1).map((n) => <option key={n} value={n}>{n === 1 ? "À vista" : `${n}x${parseValor(valor) ? ` de ${reais(Math.floor((parseValor(valor) ?? 0) / n))}` : ""}`}</option>)}</select></label>}
+        {podeParcelar && <div className="block text-xs text-suave">Parcelas
+          <Escolha rotulo="Parcelas" valor={String(parcelas)} aoMudar={(v) => setParcelas(Number(v))} opcoes={Array.from({ length: 24 }, (_, i) => i + 1).map((n) => ({ id: String(n), rotulo: n === 1 ? "À vista" : `${n}x${parseValor(valor) ? ` de ${reais(Math.floor((parseValor(valor) ?? 0) / n))}` : ""}` }))} /></div>}
 
         <div>
           <div className="mb-2 text-xs text-suave">Foto da nota ou do comprovante</div>
           {fotoUrl ? <div className="flex items-center gap-3"><img src={fotoUrl} alt="Foto anexada" className="size-20 rounded-xl border border-borda object-cover" /><Botao onClick={() => { setFoto(null); setRemoverFoto(true); }}>Remover foto</Botao></div>
-            : <Botao onClick={() => entrada.current?.click()}><Icone nome="camera" tam={18} />Tirar ou escolher foto</Botao>}
-          <input ref={entrada} type="file" accept="image/*" capture="environment" hidden onChange={(ev) => { const f = ev.target.files?.[0]; if (f) { setFoto(f); setRemoverFoto(false); } ev.target.value = ""; }} />
+            : <OpcoesDeFoto aoFoto={(f) => { setFoto(f); setRemoverFoto(false); }} />}
         </div>
 
         {erro && <Aviso tom="erro">{erro}</Aviso>}

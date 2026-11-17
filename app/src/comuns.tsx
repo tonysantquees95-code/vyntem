@@ -29,7 +29,7 @@ export function Linha({ l, banco, aoTocar }: { l: Lancamento; banco: Banco; aoTo
   const conta = contaPorId(banco, l.contaId);
   const dest = contaPorId(banco, l.contaDestinoId);
   const titulo = l.tipo === "transferencia" ? "Transferência" : cat?.nome ?? "Sem categoria";
-  const detalhe = l.tipo === "transferencia" ? `${conta?.nome ?? "?"} → ${dest?.nome ?? "?"}` : `${l.nota ? `${l.nota} · ` : ""}${conta?.nome ?? ""}`;
+  const detalhe = l.tipo === "transferencia" ? `${conta?.nome ?? "?"} → ${dest?.nome ?? "?"}` : [l.sub, l.nota && l.nota.toLowerCase() !== (l.sub ?? "").toLowerCase() ? l.nota : "", conta?.nome ?? ""].filter(Boolean).join(" · ");
   const cor = l.tipo === "receita" ? "text-neon" : l.tipo === "despesa" ? "text-[#f87171]" : "text-suave";
   return (
     <button onClick={() => aoTocar(l)} className="flex min-h-14 w-full items-center gap-3 rounded-2xl px-2 py-2 text-left hover:bg-white/5">

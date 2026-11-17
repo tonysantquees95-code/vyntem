@@ -100,7 +100,7 @@ export function filtrar(lancs: readonly Lancamento[], f: Filtro = {}): Lancament
     if (f.tipo && l.tipo !== f.tipo) return false;
     if (f.contas?.length && !f.contas.includes(l.contaId) && !(l.contaDestinoId && f.contas.includes(l.contaDestinoId))) return false;
     if (f.categorias?.length && !(l.categoriaId && f.categorias.includes(l.categoriaId))) return false;
-    if (t && !l.nota.toLowerCase().includes(t)) return false;
+    if (t && !`${l.nota} ${l.sub ?? ""}`.toLowerCase().includes(t)) return false;
     return true;
   });
 }

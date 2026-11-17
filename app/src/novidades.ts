@@ -7,6 +7,10 @@ export interface Novidade { id: number; data: string; tipo: TipoNovidade; titulo
 export const NOVIDADES: Novidade[] = [
   { id: 1, data: "2026-11-17", tipo: "novo", titulo: "Nasce o Vyntem", texto: "Controle de gastos com inteligência artificial: lance por frase (“gastei 45 no mercado”), por foto da nota, veja o calendário, os gráficos por categoria, suas contas e cartões com fatura, e pergunte ao assistente como está o seu mês." },
   { id: 2, data: "2026-11-17", tipo: "melhoria", titulo: "Assistente com a caixa embaixo", texto: "Na aba Assistente, a caixa de escrever agora fica fixa embaixo da tela, como nos outros assistentes de IA, e as mensagens aparecem acima dela." },
+  { id: 3, data: "2026-11-17", tipo: "novo", titulo: "Subcategorias prontas", texto: "Ao lançar um gasto, depois de escolher a categoria aparecem opções para um toque, como Gasolina ou Uber/Táxi em Transporte. Você pode mudar essas opções em Categorias. Se escrever “100 de gasolina” no assistente, ele já escolhe sozinho." },
+  { id: 4, data: "2026-11-17", tipo: "melhoria", titulo: "Caixas de escolha do Vyntem", texto: "A escolha de conta, tipo, parcelas e data agora abre telinhas no visual do Vyntem, com calendário próprio, no lugar das caixas cinzas do Android." },
+  { id: 5, data: "2026-11-17", tipo: "correcao", titulo: "Tirar foto da nota", texto: "Agora dá para abrir a câmera direto para fotografar a nota, ou escolher uma foto da galeria. Antes só aparecia a galeria." },
+  { id: 6, data: "2026-11-17", tipo: "correcao", titulo: "Botão + não cobre mais os valores", texto: "Ao rolar a tela até o fim, o botão de novo lançamento não fica mais por cima das últimas linhas." },
 ];
 
 export const ROTULO: Record<TipoNovidade, string> = { novo: "Novo", melhoria: "Melhorou", correcao: "Corrigido" };

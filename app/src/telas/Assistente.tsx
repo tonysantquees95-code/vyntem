@@ -6,7 +6,8 @@ import { responder } from "../perguntas";
 import { fotoParaIA } from "../fotos";
 import { interpretarComIA, lerNotaComIA, perguntarComIA } from "../ia";
 import { Icone } from "../icones";
-import { Aviso, Botao, Cartao } from "../ui";
+import { Aviso, Botao, Cartao, Folha } from "../ui";
+import { OpcoesDeFoto } from "../fotoEntrada";
 import { Dinheiro } from "../comuns";
 import type { PedidoDeLancamento } from "./NovoLancamento";
 
@@ -21,7 +22,6 @@ export function Assistente({ aoLancar }: { aoLancar: (p: PedidoDeLancamento) => 
   const [texto, setTexto] = useState("");
   const [msgs, setMsgs] = useState<Mensagem[]>([{ de: "vyntem", texto: "Oi! Escreva um gasto (“gastei 45 no mercado ontem”), faça uma pergunta (“quanto gastei com comida este mês?”) ou mande a foto de uma nota." }]);
   const [ocupado, setOcupado] = useState(false);
-  const entrada = useRef<HTMLInputElement>(null);
   const fim = useRef<HTMLDivElement>(null);
   const add = (m: Mensagem) => { setMsgs((x) => [...x, m]); setTimeout(() => fim.current?.scrollIntoView({ behavior: "smooth" }), 30); };
 
@@ -51,7 +51,7 @@ export function Assistente({ aoLancar }: { aoLancar: (p: PedidoDeLancamento) => 
     } finally { setOcupado(false); }
   }
 
-  async function foto(arq: File) {
+  async function foto(arq: Blob) {
     add({ de: "eu", texto: "📷 Foto da nota", foto: arq }); setOcupado(true);
     try {
       const l = await lerNotaComIA(await fotoParaIA(arq), banco, hoje);
@@ -63,6 +63,7 @@ export function Assistente({ aoLancar }: { aoLancar: (p: PedidoDeLancamento) => 
   }
 
   const dicas = dicasDoMes(banco, hoje);
+  const [fotoAberta, setFotoAberta] = useState(false);
   return (
     <div className="flex min-h-[calc(100dvh-11rem)] flex-1 flex-col gap-3">
       {dicas.length > 0 && <Cartao titulo="Dicas do mês"><ul className="space-y-2 text-sm">{dicas.slice(0, 3).map((d, i) => <li key={i} className={d.tom === "alerta" ? "text-aviso" : d.tom === "ok" ? "text-ok" : "text-suave"}>{d.texto}</li>)}</ul></Cartao>}
@@ -84,11 +85,13 @@ export function Assistente({ aoLancar }: { aoLancar: (p: PedidoDeLancamento) => 
       </div>
       <div className="rolagem -mx-1 flex gap-2 overflow-x-auto px-1">{SUGESTOES.map((s) => <button key={s} onClick={() => void enviar(s)} className="min-h-9 flex-none rounded-full border border-borda px-3 text-xs text-suave hover:text-texto">{s}</button>)}</div>
       <form onSubmit={(e) => { e.preventDefault(); void enviar(texto); }} className="sticky bottom-2 flex items-center gap-2 rounded-2xl border border-borda bg-painel p-2">
-        <button type="button" onClick={() => entrada.current?.click()} aria-label="Foto da nota" className="grid size-11 flex-none place-items-center rounded-xl text-suave hover:bg-white/5"><Icone nome="camera" /></button>
-        <input ref={entrada} type="file" accept="image/*" capture="environment" hidden onChange={(e) => { const f = e.target.files?.[0]; if (f) void foto(f); e.target.value = ""; }} />
+        <button type="button" onClick={() => setFotoAberta(true)} aria-label="Foto da nota" className="grid size-11 flex-none place-items-center rounded-xl text-suave hover:bg-white/5"><Icone nome="camera" /></button>
         <input value={texto} onChange={(e) => setTexto(e.target.value)} placeholder="Gastei 45 no mercado…" aria-label="Mensagem" className="min-h-11 min-w-0 flex-1 bg-transparent px-1 text-sm outline-none" />
         <button type="submit" disabled={!texto.trim() || ocupado} aria-label="Enviar" className="btn-primario grid size-11 flex-none place-items-center rounded-xl bg-neon text-fundo disabled:opacity-40"><Icone nome="enviar" /></button>
       </form>
+      <Folha aberta={fotoAberta} titulo="Foto da nota" aoFechar={() => setFotoAberta(false)}>
+        <div className="space-y-3"><p className="text-sm text-suave">O Vyntem lê o valor, a data e a loja da nota e você confere antes de salvar.</p><OpcoesDeFoto aoFoto={(f) => { setFotoAberta(false); void foto(f); }} /></div>
+      </Folha>
     </div>
   );
 }

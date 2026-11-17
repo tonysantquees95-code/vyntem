@@ -1,3 +1,4 @@
+import { Escolha } from "../seletores";
 import { useMemo, useState } from "react";
 import { useBanco } from "../banco";
 import { agruparPorDia, calendarioDoMes, DIAS_CURTOS, filtrar, hojeISO, intervalo, mesesDoAno, moverPeriodo, reaisCurto, semanasDoMes, totais, type ModoPeriodo } from "../calculos";
@@ -31,9 +32,8 @@ export function Lancamentos({ aoEditar }: { aoEditar: (l: Lancamento) => void })
       <Chips itens={ABAS} valor={aba} aoMudar={(a) => { setAba(a); setDiaAberto(null); }} rotulo="Visão" />
       {aba !== "total" && <NavegadorDePeriodo rotulo={per.rotulo} aoMudar={(p) => { setRef(moverPeriodo(modo, ref, p)); setDiaAberto(null); }} aoHoje={() => setRef(hoje)} />}
       {contas.length > 1 && (
-        <label className="flex items-center gap-2 text-xs text-suave">Conta
-          <select value={conta} onChange={(e) => setConta(e.target.value)} className="min-h-10 flex-1 rounded-xl border border-borda bg-painel px-3 text-sm text-texto"><option value="">Todas as contas</option>{contas.map((c) => <option key={c.id} value={c.id}>{c.nome}</option>)}</select>
-        </label>
+        <div className="flex items-center gap-2 text-xs text-suave">Conta
+          <Escolha className="flex-1" rotulo="Conta" titulo="Filtrar por conta" valor={conta} aoMudar={setConta} opcoes={[{ id: "", rotulo: "Todas as contas" }, ...contas.map((c) => ({ id: c.id, rotulo: c.nome }))]} /></div>
       )}
       <ResumoDoPeriodo receita={aba === "total" ? totais(todos).receita : t.receita} despesa={aba === "total" ? totais(todos).despesa : t.despesa} />
 

@@ -9,7 +9,7 @@ export interface Conta {
   limite?: number; diaFechamento?: number; diaVencimento?: number;
   arquivada?: boolean;
 }
-export interface Categoria { id: string; nome: string; tipo: "receita" | "despesa"; icone: string; cor: string }
+export interface Categoria { id: string; nome: string; tipo: "receita" | "despesa"; icone: string; cor: string; /** subcategorias para escolher com um toque (ex.: Transporte › Gasolina) */ subs?: string[] }
 export interface Parcela { grupo: string; n: number; de: number }
 export interface Lancamento {
   id: string; tipo: TipoLancamento;
@@ -18,6 +18,7 @@ export interface Lancamento {
   /** AAAA-MM-DD */
   data: string; hora?: string;
   contaId: string; contaDestinoId?: string; categoriaId?: string;
+  /** subcategoria escolhida (ex.: Gasolina), da lista da categoria */ sub?: string;
   nota: string; temFoto?: boolean; origem: OrigemLancamento; parcela?: Parcela; criadoEm: number;
 }
 export interface Banco { versao: 1; contas: Conta[]; categorias: Categoria[]; lancamentos: Lancamento[] }
@@ -29,6 +30,23 @@ export const ICONES_DE_CATEGORIA = [
   "mercado", "restaurante", "casa", "transporte", "saude", "presente", "viagem", "pet", "luz", "carro", "beleza", "esporte",
   "educacao", "lazer", "roupas", "celular", "salario", "investimento", "freela", "outros",
 ] as const;
+
+/** Subcategorias que já vêm prontas nas categorias padrão (a pessoa pode mudar em Categorias). */
+export const SUBS_PADRAO: Record<string, string[]> = {
+  "c-mercado": ["Supermercado", "Feira", "Padaria", "Açougue", "Hortifruti"],
+  "c-restaurante": ["Almoço", "Jantar", "Lanche", "Delivery", "Café"],
+  "c-casa": ["Aluguel", "Condomínio", "Móveis", "Limpeza", "Manutenção", "Reforma"],
+  "c-contas": ["Luz", "Água", "Internet", "Gás", "Telefone"],
+  "c-transporte": ["Gasolina", "Uber/Táxi", "Ônibus/Metrô", "Estacionamento", "Pedágio", "Manutenção do carro", "Seguro"],
+  "c-saude": ["Farmácia", "Consulta", "Exames", "Plano de saúde", "Dentista"],
+  "c-lazer": ["Cinema", "Streaming", "Jogos", "Shows e eventos", "Bar", "Viagem"],
+  "c-roupas": ["Roupas", "Calçados", "Acessórios"],
+  "c-educacao": ["Curso", "Mensalidade", "Livros", "Material"],
+  "c-presente": ["Aniversário", "Natal", "Casamento"],
+  "c-salario": ["Salário", "13º", "Férias", "Adiantamento"],
+  "c-vendas": ["Produtos", "Serviços"],
+  "c-invest": ["Rendimentos", "Dividendos", "Juros"],
+};
 
 export const CATEGORIAS_PADRAO: Categoria[] = [
   { id: "c-mercado", nome: "Mercado", tipo: "despesa", icone: "mercado", cor: "#60a5fa" },
@@ -53,7 +71,7 @@ export const CONTAS_PADRAO: Conta[] = [
   { id: "a-banco", nome: "Conta do banco", tipo: "banco", saldoInicial: 0, cor: "#60a5fa" },
 ];
 
-export const bancoVazio = (): Banco => ({ versao: 1, contas: CONTAS_PADRAO.map((c) => ({ ...c })), categorias: CATEGORIAS_PADRAO.map((c) => ({ ...c })), lancamentos: [] });
+export const bancoVazio = (): Banco => ({ versao: 1, contas: CONTAS_PADRAO.map((c) => ({ ...c })), categorias: CATEGORIAS_PADRAO.map((c) => ({ ...c, ...(SUBS_PADRAO[c.id] ? { subs: [...SUBS_PADRAO[c.id]!] } : {}) })), lancamentos: [] });
 
 const ehObj = (v: unknown): v is Record<string, unknown> => !!v && typeof v === "object" && !Array.isArray(v);
 const txt = (v: unknown, max = 80): string => (typeof v === "string" ? v.slice(0, max) : "");
@@ -84,7 +102,10 @@ export function limparBanco(v: unknown): Banco {
   const categorias: Categoria[] = [];
   for (const c of Array.isArray(v.categorias) ? v.categorias : []) {
     if (!ehObj(c) || !txt(c.id) || !txt(c.nome)) continue;
-    categorias.push({ id: txt(c.id), nome: txt(c.nome, 30), tipo: c.tipo === "receita" ? "receita" : "despesa", icone: (ICONES_DE_CATEGORIA as readonly string[]).includes(c.icone as string) ? (c.icone as string) : "outros", cor: corOk(c.cor, "#94a3b8") });
+    const id = txt(c.id);
+    // sem a lista guardada (versão antiga), a categoria padrão ganha as subcategorias prontas; lista vazia guardada = a pessoa apagou todas
+    const subs = Array.isArray(c.subs) ? [...new Set(c.subs.map((s) => txt(s, 30).trim()).filter(Boolean))].slice(0, 30) : SUBS_PADRAO[id];
+    categorias.push({ id, nome: txt(c.nome, 30), tipo: c.tipo === "receita" ? "receita" : "despesa", icone: (ICONES_DE_CATEGORIA as readonly string[]).includes(c.icone as string) ? (c.icone as string) : "outros", cor: corOk(c.cor, "#94a3b8"), ...(subs ? { subs: [...subs] } : {}) });
   }
   const ids = new Set(contas.map((c) => c.id));
   const lancamentos: Lancamento[] = [];
@@ -98,6 +119,7 @@ export function limparBanco(v: unknown): Banco {
     if (typeof l.hora === "string" && /^\d{2}:\d{2}$/.test(l.hora)) novo.hora = l.hora;
     if (tipo === "transferencia") novo.contaDestinoId = txt(l.contaDestinoId);
     else if (txt(l.categoriaId)) novo.categoriaId = txt(l.categoriaId);
+    if (tipo !== "transferencia" && txt(l.sub, 30).trim()) novo.sub = txt(l.sub, 30).trim();
     if (l.temFoto === true) novo.temFoto = true;
     if (ehObj(l.parcela) && txt(l.parcela.grupo) && inteiro(l.parcela.n) >= 1 && inteiro(l.parcela.de) >= inteiro(l.parcela.n)) novo.parcela = { grupo: txt(l.parcela.grupo), n: inteiro(l.parcela.n), de: inteiro(l.parcela.de) };
     lancamentos.push(novo);
