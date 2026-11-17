@@ -64,9 +64,10 @@ export function Assistente({ aoLancar }: { aoLancar: (p: PedidoDeLancamento) => 
 
   const dicas = dicasDoMes(banco, hoje);
   return (
-    <div className="flex min-h-[70dvh] flex-col gap-3">
+    <div className="flex min-h-[calc(100dvh-11rem)] flex-1 flex-col gap-3">
       {dicas.length > 0 && <Cartao titulo="Dicas do mês"><ul className="space-y-2 text-sm">{dicas.slice(0, 3).map((d, i) => <li key={i} className={d.tom === "alerta" ? "text-aviso" : d.tom === "ok" ? "text-ok" : "text-suave"}>{d.texto}</li>)}</ul></Cartao>}
       <div className="flex-1 space-y-3">
+        <Aviso tom="ok">A leitura de fotos e as perguntas livres usam IA pela internet; frases de lançamento simples funcionam até sem internet.</Aviso>
         {msgs.map((m, i) => (
           <div key={i} className={`flex ${m.de === "eu" ? "justify-end" : "justify-start"}`}>
             <div className={`max-w-[88%] space-y-2 rounded-2xl px-4 py-3 text-sm ${m.de === "eu" ? "bg-neon/15 text-texto" : "border border-borda bg-painel"}`}>
@@ -88,7 +89,6 @@ export function Assistente({ aoLancar }: { aoLancar: (p: PedidoDeLancamento) => 
         <input value={texto} onChange={(e) => setTexto(e.target.value)} placeholder="Gastei 45 no mercado…" aria-label="Mensagem" className="min-h-11 min-w-0 flex-1 bg-transparent px-1 text-sm outline-none" />
         <button type="submit" disabled={!texto.trim() || ocupado} aria-label="Enviar" className="btn-primario grid size-11 flex-none place-items-center rounded-xl bg-neon text-fundo disabled:opacity-40"><Icone nome="enviar" /></button>
       </form>
-      <Aviso tom="ok">A leitura de fotos e as perguntas livres usam IA pela internet; frases de lançamento simples funcionam até sem internet.</Aviso>
     </div>
   );
 }

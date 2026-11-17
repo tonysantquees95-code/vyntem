@@ -6,6 +6,7 @@ export interface Novidade { id: number; data: string; tipo: TipoNovidade; titulo
 
 export const NOVIDADES: Novidade[] = [
   { id: 1, data: "2026-11-17", tipo: "novo", titulo: "Nasce o Vyntem", texto: "Controle de gastos com inteligência artificial: lance por frase (“gastei 45 no mercado”), por foto da nota, veja o calendário, os gráficos por categoria, suas contas e cartões com fatura, e pergunte ao assistente como está o seu mês." },
+  { id: 2, data: "2026-11-17", tipo: "melhoria", titulo: "Assistente com a caixa embaixo", texto: "Na aba Assistente, a caixa de escrever agora fica fixa embaixo da tela, como nos outros assistentes de IA, e as mensagens aparecem acima dela." },
 ];
 
 export const ROTULO: Record<TipoNovidade, string> = { novo: "Novo", melhoria: "Melhorou", correcao: "Corrigido" };

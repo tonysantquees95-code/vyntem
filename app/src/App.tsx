@@ -145,7 +145,7 @@ export function App() {
         {falha && <div className="mb-3"><Aviso tom="erro">{falha}</Aviso></div>}
         {nova && <AtualizacaoAviso nova={nova} baixarSozinho={baixarAgora === nova.numero || ajustes.autoAtualizar} aoSemSuporte={() => void atualizar(nova)} />}
         {avisoAtualizacao && <div className="mb-3"><Aviso tom="ok">{avisoAtualizacao}</Aviso></div>}
-        <main className="flex-1">{telas[aba]}</main>
+        <main className="flex min-h-0 flex-1 flex-col">{telas[aba]}</main>
       </div>
 
       {/* botão + e barra de baixo (celular) */}
