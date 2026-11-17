@@ -17,7 +17,7 @@
 - Transferência entre contas não é receita nem despesa. Cartão: saldo negativo = dívida; pagar a fatura é uma transferência para o cartão.
 
 ## Inteligência artificial
-- DeepSeek lê texto/perguntas; Grok lê a foto da nota. As chaves ficam no servidor, nunca no app. Contrato em `docs/IA.md`. Sem servidor/internet o app usa o entendimento local.
+- DeepSeek lê texto/perguntas; Groq lê a foto da nota (plano gratuito). Entrada e licença pelo Vetorial ID. As chaves ficam no servidor, nunca no app. Contrato em `docs/IA.md`. Sem servidor/internet o app usa o entendimento local.
 
 ## Visual e personalização (padrão da suíte Vetorial)
 - Cores, formato/estilo de botão e pacote de ícones vêm de Ajustes › Personalizar (variáveis `--color-neon`, `--color-magenta`, `--raio-botao`, `--icone-traco`). Telas novas usam `Cartao`, `Botao`, `Folha` e `Icone`, nunca o visual padrão do sistema.

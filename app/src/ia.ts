@@ -1,4 +1,4 @@
-// Inteligência artificial do Vyntem: DeepSeek para texto e Grok para ler foto de nota. As chaves ficam no servidor, nunca no app.
+// Inteligência artificial do Vyntem: DeepSeek para texto e Groq para ler foto de nota. As chaves ficam no servidor, nunca no app.
 // Contrato em docs/IA.md. Sem servidor ou sem internet, o app cai no entendimento local (parser.ts e perguntas.ts).
 import { SERVIDOR } from "./servidor";
 import { sessaoGuardada } from "./conta";
@@ -28,7 +28,7 @@ export async function interpretarComIA(texto: string, banco: Banco, hoje: string
   };
 }
 
-/** Foto de nota/comprovante → valor, data e loja (Grok). `base64` sem o prefixo data:. */
+/** Foto de nota/comprovante → valor, data e loja (Groq). `base64` sem o prefixo data:. */
 export async function lerNotaComIA(base64: string, banco: Banco, hoje: string): Promise<LeituraDeNota | null> {
   const j = (await chamar({ tarefa: "foto", imagem: base64, hoje, categorias: resumoDeCategorias(banco) }, 60000)) as Record<string, unknown>;
   const valor = Number(j.valor);

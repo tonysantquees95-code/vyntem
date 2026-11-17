@@ -2,7 +2,7 @@
 
 Controle de gastos com inteligência artificial, da Vetorial Tech. Android (Capacitor) e Windows (Tauri), mesma interface.
 
-- Lance por frase ("gastei 45 no mercado ontem"), por foto da nota (Grok) ou à mão.
+- Lance por frase ("gastei 45 no mercado ontem"), por foto da nota (Groq) ou à mão.
 - Diário, calendário com total por dia, semana, mês e total; navegação por período; filtro por conta.
 - Rosca por categoria, linha do saldo, barras de receitas e despesas.
 - Contas, cartões com fatura/limite/fechamento/vencimento, transferências, parcelas.
