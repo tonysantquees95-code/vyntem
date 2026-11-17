@@ -11,6 +11,7 @@ export const NOVIDADES: Novidade[] = [
   { id: 4, data: "2026-11-17", tipo: "melhoria", titulo: "Caixas de escolha do Vyntem", texto: "A escolha de conta, tipo, parcelas e data agora abre telinhas no visual do Vyntem, com calendário próprio, no lugar das caixas cinzas do Android." },
   { id: 5, data: "2026-11-17", tipo: "correcao", titulo: "Tirar foto da nota", texto: "Agora dá para abrir a câmera direto para fotografar a nota, ou escolher uma foto da galeria. Antes só aparecia a galeria." },
   { id: 6, data: "2026-11-17", tipo: "correcao", titulo: "Botão + não cobre mais os valores", texto: "Ao rolar a tela até o fim, o botão de novo lançamento não fica mais por cima das últimas linhas." },
+  { id: 7, data: "2026-11-17", tipo: "correcao", titulo: "Novidades rolam até o fim", texto: "A tela “O que há de novo” agora rola, e o botão Entendi sempre aparece embaixo, mesmo quando há muitas novidades." },
 ];
 
 export const ROTULO: Record<TipoNovidade, string> = { novo: "Novo", melhoria: "Melhorou", correcao: "Corrigido" };
