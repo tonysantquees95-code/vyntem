@@ -57,6 +57,13 @@ export async function entrar(email: string, senha: string, aparelho: Aparelho, e
   return { token: r.token, email: r.usuario.email, nome: r.usuario.nome ?? "", licenca: v };
 }
 
+/** Cria o Vetorial ID na hora (grátis) e já entra. */
+export async function criarConta(nome: string, email: string, senha: string, aparelho: Aparelho): Promise<Sessao> {
+  const r = await chamar<{ token: string; usuario: { email: string; nome?: string } }>("POST", "/id/cadastrar", { nome, email, senha, dispositivo: aparelho, app: "vyntem" });
+  const v = await verificar(r.token);
+  return { token: r.token, email: r.usuario.email, nome: r.usuario.nome || nome, licenca: v };
+}
+
 /** Confere o login e a licença no servidor (também renova o que for preciso). */
 export async function verificar(token: string): Promise<Licenca> {
   const r = await chamar<{ licenca: Licenca }>("GET", "/id/verificar", undefined, token);

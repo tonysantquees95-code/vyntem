@@ -1,6 +1,6 @@
 // Primeira abertura: conhecer as funções, entender a permissão da câmera e aceitar os termos.
 // Mudou o texto dos termos: suba VERSAO_DOS_TERMOS e a pessoa aceita de novo.
-export const VERSAO_DOS_TERMOS = 1;
+export const VERSAO_DOS_TERMOS = 2;
 const CHAVE_TERMOS = "vyntem.termos";
 const CHAVE_TOUR = "vyntem.tour";
 
@@ -17,8 +17,8 @@ export const TOUR: PassoDoTour[] = [
 ];
 
 export const TERMOS: { titulo: string; texto: string }[] = [
-  { titulo: "1. O que é o Vyntem", texto: "O Vyntem é um aplicativo da Vetorial Tech para controlar gastos e receitas pessoais. Nesta fase ele está em testes (beta): pode ter erros e mudar sem aviso." },
-  { titulo: "2. Conta", texto: "Você entra com o seu Vetorial ID, o mesmo dos outros apps da Vetorial Tech, e o acesso depende do seu plano. Você é responsável pela sua conta e pelo que é feito com ela." },
+  { titulo: "1. O que é o Vyntem", texto: "O Vyntem é um aplicativo da Vetorial Tech para controlar gastos e receitas pessoais. Ele é gratuito. Nesta fase ainda está em testes (beta): pode ter erros e mudar sem aviso." },
+  { titulo: "2. Conta", texto: "Você entra com o seu Vetorial ID, o mesmo dos outros apps da Vetorial Tech, e o uso do Vyntem é gratuito. Se ainda não tem conta, você cria na hora, dentro do app. Você é responsável pela sua conta e pelo que é feito com ela." },
   { titulo: "3. Seus dados", texto: "Os seus lançamentos, contas, categorias e fotos ficam guardados neste aparelho. A Vetorial Tech não os recebe, a menos que você use um recurso de inteligência artificial (item 5)." },
   { titulo: "4. Cópia de segurança", texto: "Se você apagar os dados do app ou trocar de aparelho, perde o que não copiou. Use Ajustes › Cópia de segurança para guardar uma cópia." },
   { titulo: "5. Inteligência artificial", texto: "Para ler a foto de uma nota ou responder perguntas mais livres, o texto ou a imagem enviados são processados por serviços de IA contratados pela Vetorial Tech. Só é enviado o que você escolhe analisar. Sem internet, o Vyntem usa o entendimento básico do próprio aparelho." },

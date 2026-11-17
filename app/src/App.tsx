@@ -4,11 +4,9 @@ import { useMotor } from "./estado";
 import { AtualizacaoAviso } from "./AtualizacaoAviso";
 import { BUILD, haNovaVersao, precisaConferir, procurarVersao, type InfoVersao } from "./atualizacao";
 import { SERVIDOR } from "./servidor";
-import { aparelhoLocal, ErroConta, gravarVisto, guardarSessao, lerVisto, sair, sessaoGuardada, verificar, type Sessao } from "./conta";
-import { avaliar } from "./trava";
+import { aparelhoLocal, ErroConta, guardarSessao, sair, sessaoGuardada, verificar, type Sessao } from "./conta";
 import { Conta } from "./telas/Conta";
 import { MinhaConta } from "./telas/MinhaConta";
-import { TelaConfirmando, TelaTesteAcabou } from "./telas/Trava";
 import { useAjustes } from "./usarAjustes";
 import { Icone, type NomeIcone } from "./icones";
 import { Aviso } from "./ui";
@@ -46,7 +44,6 @@ export function App() {
   const [ajustes, definirAjustes] = useAjustes();
   useBanco();
   const [sessao, setSessao] = useState<Sessao | null>(sessaoGuardada);
-  const [relogio, setRelogio] = useState(() => Date.now());
   const definirSessao = (s: Sessao | null) => { guardarSessao(s); setSessao(s); };
   // Ao abrir: confere de novo o login e a licença no servidor (sem internet, vale o recibo assinado).
   useEffect(() => {
@@ -54,10 +51,6 @@ export function App() {
     verificar(sessao.token).then((licenca) => definirSessao({ ...sessao, licenca })).catch((e) => { if (e instanceof ErroConta && e.status === 401) definirSessao(null); });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  useEffect(() => { const i = setInterval(() => setRelogio(Date.now()), 60_000); return () => clearInterval(i); }, []);
-  const estadoTrava = sessao ? avaliar(sessao.licenca.selo, relogio, lerVisto()) : null;
-  useEffect(() => { if (estadoTrava && estadoTrava.tipo !== "validar_online") gravarVisto(relogio); }, [estadoTrava?.tipo, relogio]); // eslint-disable-line react-hooks/exhaustive-deps
-  const revalidar = async () => { if (!sessao) return; try { definirSessao({ ...sessao, licenca: await verificar(sessao.token) }); setRelogio(Date.now()); } catch (e) { if (e instanceof ErroConta && e.status === 401) definirSessao(null); } };
   const sairDaConta = () => { if (sessao) void sair(sessao.token); definirSessao(null); };
   const [aba, setAba] = useState<IdAba>("inicio");
   const [menu, setMenu] = useState(false);
@@ -106,8 +99,7 @@ export function App() {
 
   if (apresentar) return <Apresentacao aoConcluir={() => { setNovidades([]); setApresentar(false); }} />;
   if (!sessao) return <Conta aparelho={aparelhoLocal(motor.plataforma)} aoEntrar={definirSessao} />;
-  if (estadoTrava?.tipo === "validar_online") return <TelaConfirmando motivo={estadoTrava.motivo} aoVerificar={revalidar} aoSair={sairDaConta} />;
-  if (estadoTrava?.tipo === "teste_acabou" || !sessao.licenca.acesso || sessao.licenca.apps?.vyntem === false) return <TelaTesteAcabou sessao={sessao} semPlano={sessao.licenca.acesso && sessao.licenca.apps?.vyntem === false} aoVerificar={revalidar} aoSair={sairDaConta} />;
+  // O Vyntem é grátis: basta ter entrado com o Vetorial ID (sem plano, sem teste, sem trava de licença).
 
   const ir = (id: string) => { setAba(id as IdAba); setMenu(false); };
   const telas: Record<IdAba, ReactNode> = {

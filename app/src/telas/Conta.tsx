@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from "react";
-import { ErroConta, SITE_DA_CONTA, type Aparelho, type ErroDeLimite, type Sessao, entrar } from "../conta";
+import { ErroConta, SITE_DA_CONTA, type Aparelho, type ErroDeLimite, type Sessao, criarConta, entrar } from "../conta";
 import { Aviso, Botao, Cartao } from "../ui";
 
 const campo = "min-h-11 w-full rounded-xl border border-borda bg-black/20 px-3 text-[15px]";
@@ -8,6 +8,8 @@ const campo = "min-h-11 w-full rounded-xl border border-borda bg-black/20 px-3 t
 export function Conta({ aparelho, aoEntrar }: { aparelho: Aparelho; aoEntrar: (s: Sessao) => void }) {
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
+  const [nome, setNome] = useState("");
+  const [criar, setCriar] = useState(false);
   const [erro, setErro] = useState("");
   const [limite, setLimite] = useState<ErroDeLimite | null>(null);
   const [ocupado, setOcupado] = useState(false);
@@ -15,7 +17,7 @@ export function Conta({ aparelho, aoEntrar }: { aparelho: Aparelho; aoEntrar: (s
   async function enviar(extra: { encerrar?: string; remover?: string } = {}) {
     setOcupado(true); setErro("");
     try {
-      aoEntrar(await entrar(email.trim(), senha, aparelho, extra));
+      aoEntrar(criar && !extra.encerrar && !extra.remover ? await criarConta(nome.trim(), email.trim(), senha, aparelho) : await entrar(email.trim(), senha, aparelho, extra));
       setLimite(null);
     } catch (e) {
       if (e instanceof ErroConta && e.limite) setLimite(e.limite);
@@ -35,15 +37,17 @@ export function Conta({ aparelho, aoEntrar }: { aparelho: Aparelho; aoEntrar: (s
         </Cartao>
       ) : (
         <Cartao>
-          <form onSubmit={aoEnviar} className="space-y-3" aria-label="Entrar">
+          <form onSubmit={aoEnviar} className="space-y-3" aria-label={criar ? "Criar conta" : "Entrar"}>
+            {criar && <label className="block text-sm"><span className="text-suave">Seu nome</span><input className={campo} autoComplete="name" value={nome} onChange={(e) => setNome(e.target.value)} required /></label>}
             <label className="block text-sm"><span className="text-suave">E-mail do Vetorial ID</span><input className={campo} type="email" autoComplete="username" inputMode="email" value={email} onChange={(e) => setEmail(e.target.value)} required /></label>
-            <label className="block text-sm"><span className="text-suave">Senha</span><input className={campo} type="password" autoComplete="current-password" value={senha} onChange={(e) => setSenha(e.target.value)} required /></label>
+            <label className="block text-sm"><span className="text-suave">Senha</span><input className={campo} type="password" autoComplete={criar ? "new-password" : "current-password"} minLength={criar ? 8 : undefined} value={senha} onChange={(e) => setSenha(e.target.value)} required /></label>
             {erro && <Aviso tom="erro">{erro}</Aviso>}
-            <Botao type="submit" variante="primario" className="w-full" disabled={ocupado}>{ocupado ? "Entrando…" : "Entrar"}</Botao>
+            <Botao type="submit" variante="primario" className="w-full" disabled={ocupado}>{ocupado ? (criar ? "Criando…" : "Entrando…") : criar ? "Criar conta grátis" : "Entrar"}</Botao>
+            <button type="button" onClick={() => { setCriar((v) => !v); setErro(""); }} className="min-h-11 w-full text-sm text-neon underline">{criar ? "Já tenho conta: entrar" : "Não tenho conta: criar agora (grátis)"}</button>
           </form>
         </Cartao>
       )}
-      <p className="text-center text-xs text-suave">Não tem conta? Crie na Vênus ou <a className="underline" href={SITE_DA_CONTA} target="_blank" rel="noopener noreferrer">no site do Vetorial ID</a>: o cadastro vale para todos os apps. Esqueceu a senha? Recupere por e-mail ou SMS no mesmo site.</p>
+      <p className="text-center text-xs text-suave">O Vyntem é grátis. O Vetorial ID é a sua conta única da Vetorial Tech: criar leva um minuto e vale para todos os apps. Esqueceu a senha? Recupere <a className="underline" href={SITE_DA_CONTA} target="_blank" rel="noopener noreferrer">no site</a>.</p>
     </main>
   );
 }

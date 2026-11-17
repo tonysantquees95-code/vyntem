@@ -13,6 +13,7 @@ export const NOVIDADES: Novidade[] = [
   { id: 6, data: "2026-11-17", tipo: "correcao", titulo: "Botão + não cobre mais os valores", texto: "Ao rolar a tela até o fim, o botão de novo lançamento não fica mais por cima das últimas linhas." },
   { id: 7, data: "2026-11-17", tipo: "correcao", titulo: "Novidades rolam até o fim", texto: "A tela “O que há de novo” agora rola, e o botão Entendi sempre aparece embaixo, mesmo quando há muitas novidades." },
   { id: 8, data: "2026-11-17", tipo: "melhoria", titulo: "Lançamento direto no Assistente", texto: "Ao escrever “gastei 45 no mercado” ou mandar a foto de uma nota, o gasto agora é lançado na hora, sem tela de confirmação. Na própria conversa você pode tocar em Editar para ajustar ou em Desfazer para apagar." },
+  { id: 9, data: "2026-11-17", tipo: "novo", titulo: "Vyntem grátis, com Vetorial ID", texto: "O Vyntem agora é gratuito para sempre: não tem teste nem plano. Para usar, entre com o seu Vetorial ID, ou crie a conta na hora, dentro do próprio app. Também corrigi a leitura da data nas notas fiscais: 08/11 agora é 8 de novembro." },
 ];
 
 export const ROTULO: Record<TipoNovidade, string> = { novo: "Novo", melhoria: "Melhorou", correcao: "Corrigido" };

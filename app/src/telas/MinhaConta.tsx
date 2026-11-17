@@ -28,10 +28,11 @@ export function MinhaConta({ sessao, aoAtualizar, aoSair }: { sessao: Sessao; ao
         </div>
       </Cartao>
 
-      <Cartao titulo="Seu plano">
-        <p className="text-sm">{estado}</p>
+      <Cartao titulo="Sua conta">
+        <p className="text-sm">O Vyntem é gratuito. Os outros apps da suíte seguem o plano abaixo.</p>
+        <p className="mt-1 text-xs text-suave">{estado}</p>
         <ul className="mt-2 space-y-1 text-sm text-suave">
-          <li>Vyntem: {l.apps?.vyntem === false ? "não incluído no seu plano" : l.acesso ? "liberado" : "bloqueado"}</li>
+          <li>Vyntem: grátis para você</li>
           <li>Vênus: {l.acesso ? "liberada" : "bloqueada"}</li>
           <li>Vindex: {l.apps?.vindex === false ? "não incluído no seu plano" : l.acesso ? "liberado" : "bloqueado"}</li>
           <li>Vortex: {l.apps?.vortex === false ? "não incluído no seu plano" : l.acesso ? "liberado" : "bloqueado"}</li>
