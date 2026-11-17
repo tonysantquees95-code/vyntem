@@ -58,10 +58,20 @@ export async function entrar(email: string, senha: string, aparelho: Aparelho, e
 }
 
 /** Cria o Vetorial ID na hora (grátis) e já entra. */
-export async function criarConta(nome: string, email: string, senha: string, aparelho: Aparelho): Promise<Sessao> {
-  const r = await chamar<{ token: string; usuario: { email: string; nome?: string } }>("POST", "/id/cadastrar", { nome, email, senha, dispositivo: aparelho, app: "vyntem" });
+export type Recuperacao = { pin: string; pinConfirma: string; pergunta: string; resposta: string; respostaConfirma: string };
+
+export async function criarConta(nome: string, email: string, senha: string, aparelho: Aparelho, recuperacao: Recuperacao): Promise<Sessao> {
+  const r = await chamar<{ token: string; usuario: { email: string; nome?: string } }>("POST", "/id/cadastrar", { nome, email, senha, dispositivo: aparelho, app: "vyntem", recuperacao });
   const v = await verificar(r.token);
   return { token: r.token, email: r.usuario.email, nome: r.usuario.nome || nome, licenca: v };
+}
+
+/** Recuperar a senha sem e-mail: vê a pergunta secreta da conta e troca a senha com o PIN de 6 números ou a resposta. */
+export async function perguntaSecreta(email: string): Promise<{ existe: boolean; configurada: boolean; pergunta: string }> {
+  return chamar("POST", "/id/recuperar/pergunta", { email });
+}
+export async function recuperarPorSegredo(email: string, metodo: "pin" | "pergunta", valor: string, novaSenha: string): Promise<void> {
+  await chamar("POST", "/id/recuperar/segredo", { email, metodo, valor, novaSenha });
 }
 
 /** Confere o login e a licença no servidor (também renova o que for preciso). */
