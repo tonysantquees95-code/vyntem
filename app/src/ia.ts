@@ -1,6 +1,7 @@
 // Inteligência artificial do Vyntem: DeepSeek para texto e Grok para ler foto de nota. As chaves ficam no servidor, nunca no app.
 // Contrato em docs/IA.md. Sem servidor ou sem internet, o app cai no entendimento local (parser.ts e perguntas.ts).
 import { SERVIDOR } from "./servidor";
+import { sessaoGuardada } from "./conta";
 import { dataValida } from "./dados";
 import type { Banco } from "./dados";
 import type { Rascunho } from "./parser";
@@ -8,8 +9,9 @@ import type { Rascunho } from "./parser";
 export interface LeituraDeNota { valor: number; data: string; loja: string; categoriaId?: string }
 
 async function chamar(corpo: unknown, ms = 30000): Promise<unknown> {
-  const r = await fetch(`${SERVIDOR}/financas/ia`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(corpo), signal: AbortSignal.timeout(ms) });
-  if (!r.ok) throw new Error(r.status === 404 ? "A inteligência artificial ainda não está ligada no servidor." : `A IA não respondeu (${r.status}).`);
+  const token = sessaoGuardada()?.token;
+  const r = await fetch(`${SERVIDOR}/financas/ia`, { method: "POST", headers: { "content-type": "application/json", ...(token ? { authorization: `Bearer ${token}` } : {}) }, body: JSON.stringify(corpo), signal: AbortSignal.timeout(ms) });
+  if (!r.ok) throw new Error(r.status === 404 ? "A inteligência artificial ainda não está ligada no servidor." : r.status === 401 ? "Entre de novo com o seu Vetorial ID." : r.status === 402 || r.status === 403 ? "O seu plano não inclui a IA do Vyntem." : r.status === 503 ? "A IA ainda não está configurada no servidor." : `A IA não respondeu (${r.status}).`);
   return r.json();
 }
 const resumoDeCategorias = (b: Banco) => b.categorias.map((c) => ({ id: c.id, nome: c.nome, tipo: c.tipo }));

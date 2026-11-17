@@ -18,13 +18,14 @@ export const TOUR: PassoDoTour[] = [
 
 export const TERMOS: { titulo: string; texto: string }[] = [
   { titulo: "1. O que é o Vyntem", texto: "O Vyntem é um aplicativo da Vetorial Tech para controlar gastos e receitas pessoais. Nesta fase ele está em testes (beta): pode ter erros e mudar sem aviso." },
-  { titulo: "2. Seus dados", texto: "Os seus lançamentos, contas, categorias e fotos ficam guardados neste aparelho. A Vetorial Tech não os recebe, a menos que você use um recurso de inteligência artificial (item 4)." },
-  { titulo: "3. Cópia de segurança", texto: "Se você apagar os dados do app ou trocar de aparelho, perde o que não copiou. Use Ajustes › Cópia de segurança para guardar uma cópia." },
-  { titulo: "4. Inteligência artificial", texto: "Para ler a foto de uma nota ou responder perguntas mais livres, o texto ou a imagem enviados são processados por serviços de IA contratados pela Vetorial Tech. Só é enviado o que você escolhe analisar. Sem internet, o Vyntem usa o entendimento básico do próprio aparelho." },
-  { titulo: "5. Câmera", texto: "A câmera só é usada quando você toca em tirar foto de uma nota. Você pode retirar a permissão nas configurações do aparelho; o resto do app continua funcionando." },
-  { titulo: "6. Não é consultoria", texto: "As dicas do Vyntem são sugestões automáticas e não substituem orientação financeira profissional. Confira sempre os valores lidos pela IA antes de salvar." },
-  { titulo: "7. Garantias", texto: "O Vyntem é oferecido como está. A Vetorial Tech não se responsabiliza por perdas decorrentes do uso, por isso mantenha cópias de segurança." },
-  { titulo: "8. Mudanças", texto: "Estes termos podem mudar. Quando mudarem, o Vyntem pede que você aceite de novo antes de continuar." },
+  { titulo: "2. Conta", texto: "Você entra com o seu Vetorial ID, o mesmo dos outros apps da Vetorial Tech, e o acesso depende do seu plano. Você é responsável pela sua conta e pelo que é feito com ela." },
+  { titulo: "3. Seus dados", texto: "Os seus lançamentos, contas, categorias e fotos ficam guardados neste aparelho. A Vetorial Tech não os recebe, a menos que você use um recurso de inteligência artificial (item 5)." },
+  { titulo: "4. Cópia de segurança", texto: "Se você apagar os dados do app ou trocar de aparelho, perde o que não copiou. Use Ajustes › Cópia de segurança para guardar uma cópia." },
+  { titulo: "5. Inteligência artificial", texto: "Para ler a foto de uma nota ou responder perguntas mais livres, o texto ou a imagem enviados são processados por serviços de IA contratados pela Vetorial Tech. Só é enviado o que você escolhe analisar. Sem internet, o Vyntem usa o entendimento básico do próprio aparelho." },
+  { titulo: "6. Câmera", texto: "A câmera só é usada quando você toca em tirar foto de uma nota. Você pode retirar a permissão nas configurações do aparelho; o resto do app continua funcionando." },
+  { titulo: "7. Não é consultoria", texto: "As dicas do Vyntem são sugestões automáticas e não substituem orientação financeira profissional. Confira sempre os valores lidos pela IA antes de salvar." },
+  { titulo: "8. Garantias", texto: "O Vyntem é oferecido como está. A Vetorial Tech não se responsabiliza por perdas decorrentes do uso, por isso mantenha cópias de segurança." },
+  { titulo: "9. Mudanças", texto: "Estes termos podem mudar. Quando mudarem, o Vyntem pede que você aceite de novo antes de continuar." },
 ];
 
 export const termosAceitos = (): boolean => { try { return localStorage.getItem(CHAVE_TERMOS) === String(VERSAO_DOS_TERMOS); } catch { return false; } };

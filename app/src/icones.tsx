@@ -13,7 +13,7 @@ function Svg({ children, tam = 24, style, ...r }: SVGProps<SVGSVGElement> & { ta
 }
 const L = { fill: "none" } as const;
 
-const MENU = ["inicio", "lancamentos", "calendario", "graficos", "contas", "categorias", "assistente", "ajustes", "menu", "fechar", "atualizar", "mais", "camera", "seta_e", "seta_d", "cartao", "lixeira", "editar", "check", "buscar", "filtro", "enviar", "olho", "olho_off"] as const;
+const MENU = ["inicio", "lancamentos", "calendario", "graficos", "contas", "categorias", "assistente", "ajustes", "menu", "fechar", "atualizar", "mais", "camera", "seta_e", "seta_d", "cartao", "lixeira", "editar", "check", "buscar", "filtro", "enviar", "olho", "olho_off", "conta"] as const;
 export const NOMES_DE_CATEGORIA = ["mercado", "restaurante", "casa", "transporte", "saude", "presente", "viagem", "pet", "luz", "carro", "beleza", "esporte", "educacao", "lazer", "roupas", "celular", "salario", "investimento", "freela", "outros"] as const;
 export type NomeIcone = (typeof MENU)[number] | (typeof NOMES_DE_CATEGORIA)[number];
 
@@ -42,6 +42,7 @@ const DESENHOS: Record<NomeIcone, ReactElement> = {
   enviar: <g><path d="M4 12 20 4l-4 16-4.5-6z" /><path d="m11.5 14 8.5-10" {...L} /></g>,
   olho: <g {...L}><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z" /><circle cx="12" cy="12" r="2.8" /></g>,
   olho_off: <g {...L}><path d="M4 4l16 16M9.6 5.9A9.6 9.6 0 0 1 12 5.5c6 0 9.5 6.5 9.5 6.5a16 16 0 0 1-3 3.8M6.3 7.7A16 16 0 0 0 2.5 12S6 18.5 12 18.5c1.4 0 2.7-.3 3.8-.8" /></g>,
+  conta: <g><circle cx="12" cy="8.5" r="3.6" /><path d="M4.5 20c.6-3.8 3.6-6 7.5-6s6.9 2.2 7.5 6" {...L} /></g>,
   // categorias
   mercado: <g><path d="M4 9h16l-1.6 9a2 2 0 0 1-2 1.7H7.6a2 2 0 0 1-2-1.7z" /><path d="M8.5 9 11 4M15.5 9 13 4" {...L} /></g>,
   restaurante: <g {...L}><path d="M7 3v7a2 2 0 0 0 2 2v9M11 3v7a2 2 0 0 1-2 2M17 21V3c-2 1.5-3 4-3 7v3h3" /></g>,

@@ -4,6 +4,11 @@ import { useMotor } from "./estado";
 import { AtualizacaoAviso } from "./AtualizacaoAviso";
 import { BUILD, haNovaVersao, precisaConferir, procurarVersao, type InfoVersao } from "./atualizacao";
 import { SERVIDOR } from "./servidor";
+import { aparelhoLocal, ErroConta, gravarVisto, guardarSessao, lerVisto, sair, sessaoGuardada, verificar, type Sessao } from "./conta";
+import { avaliar } from "./trava";
+import { Conta } from "./telas/Conta";
+import { MinhaConta } from "./telas/MinhaConta";
+import { TelaConfirmando, TelaTesteAcabou } from "./telas/Trava";
 import { useAjustes } from "./usarAjustes";
 import { Icone, type NomeIcone } from "./icones";
 import { Aviso } from "./ui";
@@ -30,6 +35,7 @@ const ABAS = [
   { id: "categorias", rotulo: "Categorias", icone: "categorias" },
   { id: "assistente", rotulo: "Assistente", icone: "assistente" },
   { id: "ajustes", rotulo: "Ajustes", icone: "ajustes" },
+  { id: "conta", rotulo: "Conta", icone: "conta" },
 ] as const satisfies readonly { id: string; rotulo: string; icone: NomeIcone }[];
 type IdAba = (typeof ABAS)[number]["id"];
 const ATALHOS: readonly IdAba[] = ["inicio", "lancamentos", "graficos", "assistente"];
@@ -39,6 +45,20 @@ export function App() {
   const demo = motor.plataforma === "demonstracao";
   const [ajustes, definirAjustes] = useAjustes();
   useBanco();
+  const [sessao, setSessao] = useState<Sessao | null>(sessaoGuardada);
+  const [relogio, setRelogio] = useState(() => Date.now());
+  const definirSessao = (s: Sessao | null) => { guardarSessao(s); setSessao(s); };
+  // Ao abrir: confere de novo o login e a licença no servidor (sem internet, vale o recibo assinado).
+  useEffect(() => {
+    if (!sessao) return;
+    verificar(sessao.token).then((licenca) => definirSessao({ ...sessao, licenca })).catch((e) => { if (e instanceof ErroConta && e.status === 401) definirSessao(null); });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  useEffect(() => { const i = setInterval(() => setRelogio(Date.now()), 60_000); return () => clearInterval(i); }, []);
+  const estadoTrava = sessao ? avaliar(sessao.licenca.selo, relogio, lerVisto()) : null;
+  useEffect(() => { if (estadoTrava && estadoTrava.tipo !== "validar_online") gravarVisto(relogio); }, [estadoTrava?.tipo, relogio]); // eslint-disable-line react-hooks/exhaustive-deps
+  const revalidar = async () => { if (!sessao) return; try { definirSessao({ ...sessao, licenca: await verificar(sessao.token) }); setRelogio(Date.now()); } catch (e) { if (e instanceof ErroConta && e.status === 401) definirSessao(null); } };
+  const sairDaConta = () => { if (sessao) void sair(sessao.token); definirSessao(null); };
   const [aba, setAba] = useState<IdAba>("inicio");
   const [menu, setMenu] = useState(false);
   const [saindo, setSaindo] = useState(false);
@@ -85,6 +105,9 @@ export function App() {
   }, [motor, demo, ajustes.autoAtualizar]);
 
   if (apresentar) return <Apresentacao aoConcluir={() => { setNovidades([]); setApresentar(false); }} />;
+  if (!sessao) return <Conta aparelho={aparelhoLocal(motor.plataforma)} aoEntrar={definirSessao} />;
+  if (estadoTrava?.tipo === "validar_online") return <TelaConfirmando motivo={estadoTrava.motivo} aoVerificar={revalidar} aoSair={sairDaConta} />;
+  if (estadoTrava?.tipo === "teste_acabou" || !sessao.licenca.acesso || sessao.licenca.apps?.vyntem === false) return <TelaTesteAcabou sessao={sessao} semPlano={sessao.licenca.acesso && sessao.licenca.apps?.vyntem === false} aoVerificar={revalidar} aoSair={sairDaConta} />;
 
   const ir = (id: string) => { setAba(id as IdAba); setMenu(false); };
   const telas: Record<IdAba, ReactNode> = {
@@ -95,6 +118,7 @@ export function App() {
     categorias: <Categorias />,
     assistente: <Assistente aoLancar={(p) => setPedido(p)} />,
     ajustes: <AjustesTela aoAtualizar={async (v) => { setNova(v); setBaixarAgora(v.numero); }} nova={nova} />,
+    conta: <MinhaConta sessao={sessao} aoAtualizar={definirSessao} aoSair={sairDaConta} />,
   };
   const aoTocar = (e: TouchEvent) => { const t = e.touches[0]; inicioToque.current = t && t.clientX < 24 ? t.clientX : null; };
   const aoSoltar = (e: TouchEvent) => { const t = e.changedTouches[0]; const i = inicioToque.current; inicioToque.current = null; if (t && i != null && t.clientX - i > 60) setMenu(true); };
