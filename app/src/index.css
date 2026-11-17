@@ -1,0 +1,34 @@
+@import "tailwindcss";
+@theme {
+  --color-fundo: #05030b;
+  --color-painel: #0c0918;
+  --color-borda: #221b38;
+  --color-texto: #e9e6f5;
+  --color-suave: #9a93b8;
+  --color-neon: #22e3c4;
+  --color-magenta: #3b9cff;
+  --color-ok: #34d399;
+  --color-aviso: #fbbf24;
+  --color-erro: #f87171;
+}
+html, body, #raiz { min-height: 100dvh; }
+body { margin: 0; background: #05030b; color: var(--color-texto); font-family: system-ui, "Segoe UI", sans-serif; }
+.num { font-variant-numeric: tabular-nums; }
+.brilho { box-shadow: 0 0 24px -6px var(--color-neon); }
+button { cursor: pointer; }
+input, select, textarea { color: inherit; font: inherit; }
+input::placeholder, textarea::placeholder { color: var(--color-suave); opacity: .7; }
+
+/* estilo dos botões principais, escolhido em Ajustes › Personalizar */
+html[data-botoes="degrade"] .btn-primario { background: linear-gradient(135deg, var(--color-neon), var(--color-magenta)); color: var(--color-fundo); }
+html[data-botoes="contorno"] .btn-primario { background: transparent; color: var(--color-neon); border: 1.5px solid var(--color-neon); }
+html[data-botoes="contorno"] .btn-primario:hover { background: color-mix(in srgb, var(--color-neon) 14%, transparent); }
+
+/* V vivo: pulsa devagar, como o orbe da Vênus */
+.logo-vivo { animation: vivo 4.8s ease-in-out infinite; filter: drop-shadow(0 0 10px color-mix(in srgb, var(--color-neon) 45%, transparent)); }
+@keyframes vivo { 0%, 100% { transform: scale(0.97); } 50% { transform: scale(1.05); } }
+@media (prefers-reduced-motion: reduce) { .logo-vivo { animation: none; } }
+
+.rolagem { overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
+/* valores escondidos (modo "esconder valores") */
+html[data-privado="1"] .valor { filter: blur(7px); user-select: none; }
