@@ -1,9 +1,10 @@
 import { useRef, useState } from "react";
-import { useBanco } from "../banco";
+import { adicionarLancamentos, removerLancamento, useBanco } from "../banco";
+import { novoId, type Lancamento } from "../dados";
 import { dicasDoMes, hojeISO, intervalo, filtrar, totais } from "../calculos";
 import { interpretar, type Rascunho } from "../parser";
 import { responder } from "../perguntas";
-import { fotoParaIA } from "../fotos";
+import { apagarFoto, fotoParaIA, guardarFoto, reduzirFoto } from "../fotos";
 import { interpretarComIA, lerNotaComIA, perguntarComIA } from "../ia";
 import { Icone } from "../icones";
 import { Aviso, Botao, Cartao, Folha } from "../ui";
@@ -11,7 +12,7 @@ import { OpcoesDeFoto } from "../fotoEntrada";
 import { Dinheiro } from "../comuns";
 import type { PedidoDeLancamento } from "./NovoLancamento";
 
-interface Mensagem { de: "eu" | "vyntem"; texto: string; rascunho?: PedidoDeLancamento["rascunho"]; foto?: Blob }
+interface Mensagem { de: "eu" | "vyntem"; texto: string; rascunho?: PedidoDeLancamento["rascunho"]; foto?: Blob; lancado?: Lancamento; desfeito?: boolean }
 
 const SUGESTOES = ["gastei 45 no mercado", "quanto gastei este mês?", "como está minha fatura?", "me dá dicas"];
 
@@ -24,6 +25,26 @@ export function Assistente({ aoLancar }: { aoLancar: (p: PedidoDeLancamento) => 
   const [ocupado, setOcupado] = useState(false);
   const fim = useRef<HTMLDivElement>(null);
   const add = (m: Mensagem) => { setMsgs((x) => [...x, m]); setTimeout(() => fim.current?.scrollIntoView({ behavior: "smooth" }), 30); };
+
+  /** Salva na hora, sem tela de conferência: quem escreveu "gastei 45 no mercado" já quer o gasto lançado. Dá para editar ou desfazer na própria conversa. */
+  async function lancar(r: NonNullable<PedidoDeLancamento["rascunho"]>, origem: Lancamento["origem"], foto?: Blob, prefixo = ""): Promise<boolean> {
+    const conta = r.contaId ?? banco.contas.find((c) => c.tipo !== "cartao")?.id ?? banco.contas[0]?.id;
+    if (!conta) return false;
+    const cat = banco.categorias.find((c) => c.id === r.categoriaId && c.tipo === r.tipo);
+    const nota = (r.sub && r.nota.toLowerCase() === r.sub.toLowerCase() ? "" : r.nota).trim().slice(0, 120);
+    const l: Lancamento = { id: novoId("l"), tipo: r.tipo, valor: r.valor, data: r.data, contaId: conta, categoriaId: cat?.id, sub: cat && r.sub && (cat.subs ?? []).includes(r.sub) ? r.sub : undefined, nota, origem, temFoto: !!foto, criadoEm: Date.now() };
+    if (adicionarLancamentos([l])) return false; // não coube / erro: cai na tela de conferência
+    let aviso = "";
+    if (foto) { try { await guardarFoto(l.id, await reduzirFoto(foto, 1280, 0.7)); } catch { aviso = " A foto não coube no armazenamento, então ficou só o lançamento."; } }
+    add({ de: "vyntem", texto: `${prefixo}${r.tipo === "receita" ? "Receita" : "Despesa"} lançada${cat ? ` em ${cat.nome}${l.sub ? ` › ${l.sub}` : ""}` : ""}.${aviso}`, lancado: aviso ? { ...l, temFoto: false } : l });
+    return true;
+  }
+
+  function desfazer(i: number) {
+    const l = msgs[i]?.lancado; if (!l) return;
+    removerLancamento(l.id); if (l.temFoto) void apagarFoto(l.id).catch(() => undefined);
+    setMsgs((x) => x.map((m, k) => (k === i ? { ...m, desfeito: true } : m)));
+  }
 
   async function enviar(frase: string) {
     const f = frase.trim();
@@ -47,6 +68,7 @@ export function Assistente({ aoLancar }: { aoLancar: (p: PedidoDeLancamento) => 
           return;
         }
       }
+      if (await lancar(r, "texto", undefined, viaIA ? "(Entendi com IA) " : "")) return;
       add({ de: "vyntem", texto: `Entendi: ${r.tipo === "receita" ? "receita" : "despesa"}${viaIA ? " (com IA)" : ""}. Confira e salve.`, rascunho: { ...r, origem: "texto" } });
     } finally { setOcupado(false); }
   }
@@ -56,6 +78,7 @@ export function Assistente({ aoLancar }: { aoLancar: (p: PedidoDeLancamento) => 
     try {
       const l = await lerNotaComIA(await fotoParaIA(arq), banco, hoje);
       if (!l) { add({ de: "vyntem", texto: "Não consegui ler um valor nessa foto. Você pode lançar à mão e anexar a foto.", rascunho: { tipo: "despesa", valor: 0, data: hoje, nota: "", origem: "foto" }, foto: arq }); return; }
+      if (await lancar({ tipo: "despesa", valor: l.valor, data: l.data, nota: l.loja, categoriaId: l.categoriaId }, "foto", arq, `Li a nota${l.loja ? ` de ${l.loja}` : ""}. `)) return;
       add({ de: "vyntem", texto: `Li a nota${l.loja ? ` de ${l.loja}` : ""}. Confira os dados antes de salvar.`, rascunho: { tipo: "despesa", valor: l.valor, data: l.data, nota: l.loja, categoriaId: l.categoriaId, origem: "foto" }, foto: arq });
     } catch (e) {
       add({ de: "vyntem", texto: `${e instanceof Error && e.message ? e.message : "Não consegui ler a foto agora."} Lance à mão e anexe a foto.`, rascunho: { tipo: "despesa", valor: 0, data: hoje, nota: "", origem: "foto" }, foto: arq });
@@ -73,6 +96,12 @@ export function Assistente({ aoLancar }: { aoLancar: (p: PedidoDeLancamento) => 
           <div key={i} className={`flex ${m.de === "eu" ? "justify-end" : "justify-start"}`}>
             <div className={`max-w-[88%] space-y-2 rounded-2xl px-4 py-3 text-sm ${m.de === "eu" ? "bg-neon/15 text-texto" : "border border-borda bg-painel"}`}>
               <p className="whitespace-pre-line">{m.texto}</p>
+              {m.lancado && (m.desfeito
+                ? <p className="text-xs text-suave">Desfeito: este lançamento foi removido.</p>
+                : <div className="space-y-2">
+                    <div className="rounded-xl border border-ok/40 bg-ok/10 p-3 text-xs text-suave"><Dinheiro v={m.lancado.valor} className="block text-lg font-bold text-texto" />{m.lancado.nota && <span>{m.lancado.nota} · </span>}{m.lancado.data.split("-").reverse().join("/")}</div>
+                    <div className="flex gap-2"><Botao variante="suave" onClick={() => aoLancar({ editar: m.lancado })}>Editar</Botao><Botao variante="suave" onClick={() => desfazer(i)}>Desfazer</Botao></div>
+                  </div>)}
               {m.rascunho && <div className="space-y-2">
                 {m.rascunho.valor > 0 && <div className="rounded-xl border border-borda bg-fundo/60 p-3 text-xs text-suave"><Dinheiro v={m.rascunho.valor} className="block text-lg font-bold text-texto" />{m.rascunho.nota && <span>{m.rascunho.nota} · </span>}{m.rascunho.data.split("-").reverse().join("/")}</div>}
                 <Botao variante="primario" onClick={() => aoLancar({ rascunho: m.rascunho, fotoNova: m.foto })}>{m.rascunho.valor > 0 ? "Conferir e salvar" : "Lançar à mão"}</Botao>
@@ -90,7 +119,7 @@ export function Assistente({ aoLancar }: { aoLancar: (p: PedidoDeLancamento) => 
         <button type="submit" disabled={!texto.trim() || ocupado} aria-label="Enviar" className="btn-primario grid size-11 flex-none place-items-center rounded-xl bg-neon text-fundo disabled:opacity-40"><Icone nome="enviar" /></button>
       </form>
       <Folha aberta={fotoAberta} titulo="Foto da nota" aoFechar={() => setFotoAberta(false)}>
-        <div className="space-y-3"><p className="text-sm text-suave">O Vyntem lê o valor, a data e a loja da nota e você confere antes de salvar.</p><OpcoesDeFoto aoFoto={(f) => { setFotoAberta(false); void foto(f); }} /></div>
+        <div className="space-y-3"><p className="text-sm text-suave">O Vyntem lê o valor, a data e a loja da nota e já lança o gasto; se algo estiver errado, toque em Editar.</p><OpcoesDeFoto aoFoto={(f) => { setFotoAberta(false); void foto(f); }} /></div>
       </Folha>
     </div>
   );
