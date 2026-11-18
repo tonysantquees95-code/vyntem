@@ -23,3 +23,7 @@
 - Cores, formato/estilo de botão e pacote de ícones vêm de Ajustes › Personalizar (variáveis `--color-neon`, `--color-magenta`, `--raio-botao`, `--icone-traco`). Telas novas usam `Cartao`, `Botao`, `Folha` e `Icone`, nunca o visual padrão do sistema.
 - Ícone novo: desenhe em `icones.tsx` no mesmo estilo de traço.
 - Atualização: verificar → barra de download → a pessoa toca em Instalar (igual à Vênus).
+
+## Teste visual das telas
+- `app/teste-visual/telas.mjs` (motor) + `config.mjs` (telas a visitar) — `npm run build && npm run test:visual` abre o app em 7 tamanhos (celular pequeno até janela do Windows) e confere se cada tela e janela cabe, não estoura para o lado e se todo botão dá para alcançar. Roda na publicação e guarda as fotos como artefato `fotos-das-telas`.
+- Tela ou janela nova: acrescente um cenário em `config.mjs`.

@@ -35,6 +35,18 @@ jobs:
         working-directory: app
         env:
           VITE_BUILD: ${{ github.run_number }}
+      - name: Teste visual (telas em vários tamanhos)
+        run: npm run test:visual
+        working-directory: app
+        env:
+          CHROME: C:/Program Files/Google/Chrome/Application/chrome.exe
+      - name: Guardar as fotos das telas
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fotos-das-telas
+          path: app/teste-visual/fotos/
+          retention-days: 7
 
   windows:
     needs: verificar
