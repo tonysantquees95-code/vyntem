@@ -15,6 +15,7 @@ export const NOVIDADES: Novidade[] = [
   { id: 8, data: "2026-11-17", tipo: "melhoria", titulo: "Lançamento direto no Assistente", texto: "Ao escrever “gastei 45 no mercado” ou mandar a foto de uma nota, o gasto agora é lançado na hora, sem tela de confirmação. Na própria conversa você pode tocar em Editar para ajustar ou em Desfazer para apagar." },
   { id: 9, data: "2026-11-17", tipo: "novo", titulo: "Vyntem grátis, com Vetorial ID", texto: "O Vyntem agora é gratuito para sempre: não tem teste nem plano. Para usar, entre com o seu Vetorial ID, ou crie a conta na hora, dentro do próprio app. Também corrigi a leitura da data nas notas fiscais: 08/11 agora é 8 de novembro." },
   { id: 10, data: "2026-11-17", tipo: "novo", titulo: "Recuperar a senha sem e-mail", texto: "Ao criar a conta você define uma senha de recuperação de 6 números e uma pergunta secreta com a resposta. Se esquecer a senha, toque em “Recupere aqui” na tela de entrada, escolha um dos dois jeitos e crie a senha nova. Guarde bem esses dados." },
+  { id: 11, data: "2026-11-18", tipo: "melhoria", titulo: "Botões mais fáceis de tocar", texto: "Os botões de fechar, pular e ver mais ficaram maiores, para acertar com o dedo sem errar." },
 ];
 
 export const ROTULO: Record<TipoNovidade, string> = { novo: "Novo", melhoria: "Melhorou", correcao: "Corrigido" };
