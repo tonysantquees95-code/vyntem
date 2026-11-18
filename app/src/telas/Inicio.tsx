@@ -25,12 +25,12 @@ export function Inicio({ ir, aoEditar }: { ir: (id: string) => void; aoEditar: (
         <div className="mt-1 text-center text-xs capitalize text-suave">{per.rotulo}</div>
       </Cartao>
       {dicas.length > 0 && <Cartao titulo="Dicas" acao={<button onClick={() => ir("assistente")} className="text-xs text-neon">Falar com o assistente</button>}><ul className="space-y-2 text-sm">{dicas.slice(0, 2).map((d, i) => <li key={i} className={d.tom === "alerta" ? "text-aviso" : d.tom === "ok" ? "text-ok" : "text-suave"}>{d.texto}</li>)}</ul></Cartao>}
-      <Cartao titulo="Gastos por categoria" acao={<button onClick={() => ir("graficos")} className="text-xs text-neon">Ver gráficos</button>}>
+      <Cartao titulo="Gastos por categoria" acao={<button onClick={() => ir("graficos")} className="min-h-10 px-2 text-xs text-neon">Ver gráficos</button>}>
         {fatias.length === 0 ? <Vazio>Sem despesas neste mês ainda.</Vazio> : <>
           <Rosca fatias={fatias} centro={reais(total)} sub="gasto no mês" tam={170} />
           <div className="mt-3 flex flex-wrap justify-center gap-x-4 gap-y-1">{fatias.slice(0, 4).map((f) => <span key={f.id} className="flex items-center gap-1.5 text-xs text-suave"><Bolinha cat={f} tam={20} />{f.nome} {f.pct.toLocaleString("pt-BR", { maximumFractionDigits: 0 })}%</span>)}</div></>}
       </Cartao>
-      <Cartao titulo="Últimos lançamentos" acao={<button onClick={() => ir("lancamentos")} className="text-xs text-neon">Ver todos</button>}>
+      <Cartao titulo="Últimos lançamentos" acao={<button onClick={() => ir("lancamentos")} className="min-h-10 px-2 text-xs text-neon">Ver todos</button>}>
         {recentes.length === 0 ? <Vazio>Toque em + para fazer o primeiro lançamento, ou fale com o assistente.</Vazio> : <div className="-mx-2">{recentes.map((l) => <Linha key={l.id} l={l} banco={banco} aoTocar={aoEditar} />)}</div>}
       </Cartao>
     </div>
