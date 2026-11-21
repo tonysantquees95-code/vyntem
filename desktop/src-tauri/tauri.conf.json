@@ -21,7 +21,7 @@
       }
     ],
     "security": {
-      "csp": "default-src 'self'; connect-src 'self' https://venus-servidor.tonysantquees95.workers.dev https://api.github.com ipc: http://ipc.localhost; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline'"
+      "csp": "default-src 'self'; frame-src https://venus-servidor.tonysantquees95.workers.dev; connect-src 'self' https://venus-servidor.tonysantquees95.workers.dev https://api.github.com ipc: http://ipc.localhost; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline'"
     }
   },
   "bundle": {

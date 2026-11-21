@@ -16,6 +16,7 @@ export default {
   cenarios: [
     ["primeira-abertura", "primeira", async () => {}],
     ["o-que-ha-de-novo", "atualizou", async (p) => { await p.getByText("O que há de novo").first().waitFor(); }],
+    ["feedback", "normal", async (p, ajuda) => { await ajuda.aba(p, "Ajustes"); await p.getByRole("button", { name: "Enviar feedback" }).click(); await p.getByText(/^FEEDBACK/).waitFor(); await p.waitForTimeout(300); }],
     ...ABAS.map((a) => [`aba-${a.toLowerCase().normalize("NFD").replace(/[^a-z]/g, "")}`, "normal", async (p, ajuda) => { await ajuda.aba(p, a); }]),
     ["novo-lancamento", "normal", async (p) => { await p.getByLabel("Novo lançamento").click(); await p.waitForTimeout(400); }],
   ],

@@ -16,6 +16,7 @@ export const NOVIDADES: Novidade[] = [
   { id: 9, data: "2026-11-17", tipo: "novo", titulo: "Vyntem grátis, com Vetorial ID", texto: "O Vyntem agora é gratuito para sempre: não tem teste nem plano. Para usar, entre com o seu Vetorial ID, ou crie a conta na hora, dentro do próprio app. Também corrigi a leitura da data nas notas fiscais: 08/11 agora é 8 de novembro." },
   { id: 10, data: "2026-11-17", tipo: "novo", titulo: "Recuperar a senha sem e-mail", texto: "Ao criar a conta você define uma senha de recuperação de 6 números e uma pergunta secreta com a resposta. Se esquecer a senha, toque em “Recupere aqui” na tela de entrada, escolha um dos dois jeitos e crie a senha nova. Guarde bem esses dados." },
   { id: 11, data: "2026-11-18", tipo: "melhoria", titulo: "Botões mais fáceis de tocar", texto: "Os botões de fechar, pular e ver mais ficaram maiores, para acertar com o dedo sem errar." },
+  { id: 12, data: "2026-11-21", tipo: "novo", titulo: "Feedback e relato de erros", texto: "Em Ajustes › Sobre o Vyntem você encontra Enviar feedback e Reportar um erro: conte o que achou, avise quando algo não funcionou e responda uma pesquisa rápida de 1 minuto. O Vyntem está em fase de testes (beta) e cada relato ajuda a melhorar." },
 ];
 
 export const ROTULO: Record<TipoNovidade, string> = { novo: "Novo", melhoria: "Melhorou", correcao: "Corrigido" };

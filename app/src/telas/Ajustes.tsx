@@ -10,6 +10,7 @@ import { apagarTudo, exportarBackup, importarBackup } from "../banco";
 import { limparFotos } from "../fotos";
 import { Tour, Termos } from "./Apresentacao";
 import { Novidades } from "./Novidades";
+import { FeedbackDoApp } from "./FeedbackDoApp";
 import { NOVIDADES, novasDesde } from "../novidades";
 
 const Chave = ({ ligado, aoMudar, rotulo, detalhe }: { ligado: boolean; aoMudar: (v: boolean) => void; rotulo: string; detalhe: string }) => (
@@ -23,7 +24,7 @@ const Chave = ({ ligado, aoMudar, rotulo, detalhe }: { ligado: boolean; aoMudar:
 export function AjustesTela({ aoAtualizar, nova }: { aoAtualizar: (v: InfoVersao) => Promise<void>; nova: InfoVersao | null }) {
   const motor = useMotor();
   const [a, definir] = useAjustes();
-  const [sobre, setSobre] = useState<"" | "tour" | "termos" | "novidades">("");
+  const [sobre, setSobre] = useState<"" | "tour" | "termos" | "novidades" | "feedback">("");
   const [restaurando, setRestaurando] = useState(false);
   const [colado, setColado] = useState("");
   const [aviso, setAviso] = useState("");
@@ -112,12 +113,15 @@ export function AjustesTela({ aoAtualizar, nova }: { aoAtualizar: (v: InfoVersao
       {parte === "geral" && <>
       {sobre === "tour" && <div className="fixed inset-0 z-50 flex flex-col bg-fundo"><div className="mx-auto flex min-h-0 w-full max-w-lg flex-1 flex-col px-5 pb-4 pt-6"><Tour aoTerminar={() => setSobre("")} aoFechar={() => setSobre("")} rotuloFinal="Fechar" /></div></div>}
       {sobre === "termos" && <Termos aoFechar={() => setSobre("")} />}
+      {sobre === "feedback" && <FeedbackDoApp aoFechar={() => setSobre("")} />}
       {sobre === "novidades" && <Novidades itens={novasDesde(0, NOVIDADES)} aoFechar={() => setSobre("")} />}
       <Cartao titulo="Sobre o Vyntem">
         <div className="flex flex-wrap gap-2">
           <Botao onClick={() => setSobre("tour")}>Rever a apresentação</Botao>
           <Botao onClick={() => setSobre("termos")}>Termos de uso</Botao>
           <Botao onClick={() => setSobre("novidades")}>O que há de novo</Botao>
+          <Botao onClick={() => setSobre("feedback")}>Enviar feedback</Botao>
+          <Botao onClick={() => setSobre("feedback")}>Reportar um erro</Botao>
         </div>
       </Cartao>
       <Cartao titulo="Atualizações">
