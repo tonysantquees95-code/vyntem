@@ -24,6 +24,7 @@ import { Categorias } from "./telas/Categorias";
 import { Assistente } from "./telas/Assistente";
 import { NovoLancamento, type PedidoDeLancamento } from "./telas/NovoLancamento";
 import { erroDeGravacao, useBanco } from "./banco";
+import { sincronizarCaixa } from "./sincCaixa";
 
 const ABAS = [
   { id: "inicio", rotulo: "Início", icone: "inicio" },
@@ -51,6 +52,15 @@ export function App() {
     verificar(sessao.token).then((licenca) => definirSessao({ ...sessao, licenca })).catch((e) => { if (e instanceof ErroConta && e.status === 401) definirSessao(null); });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+  // Vendas pagas da Vênus caem sozinhas no "Caixa da loja": ao abrir, a cada minuto e quando o app volta para a tela.
+  useEffect(() => {
+    if (!sessao || demo) return;
+    const buscar = () => { if (document.visibilityState === "visible") void sincronizarCaixa(sessao.token); };
+    buscar();
+    const t = setInterval(buscar, 60_000);
+    document.addEventListener("visibilitychange", buscar);
+    return () => { clearInterval(t); document.removeEventListener("visibilitychange", buscar); };
+  }, [sessao?.token, demo]);
   const sairDaConta = () => { if (sessao) void sair(sessao.token); definirSessao(null); };
   const [aba, setAba] = useState<IdAba>("inicio");
   const [menu, setMenu] = useState(false);

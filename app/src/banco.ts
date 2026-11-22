@@ -1,5 +1,6 @@
 // Onde ficam os seus dados: só neste aparelho (localStorage). Nada sai daqui sem você pedir.
 import { useSyncExternalStore } from "react";
+import { aplicarEntradas } from "./caixa.ts";
 import { bancoVazio, limparBanco, type Banco, type Categoria, type Conta, type Lancamento } from "./dados";
 
 const CHAVE = "vyntem.dados";
@@ -38,6 +39,13 @@ export function removerOuArquivarConta(id: string): "removida" | "arquivada" {
 }
 export const salvarCategoria = (c: Categoria): string => aplicar({ ...atual, categorias: atual.categorias.some((x) => x.id === c.id) ? atual.categorias.map((x) => (x.id === c.id ? c : x)) : [...atual.categorias, c] });
 export const removerCategoria = (id: string): string => aplicar({ ...atual, categorias: atual.categorias.filter((c) => c.id !== id) });
+
+/** Vendas pagas vindas da Vênus: lança na conta "Caixa da loja" (sem duplicar). Devolve quantos lançamentos novos entraram. */
+export function receberVendasDaLoja(entradas: unknown[]): number {
+  const r = aplicarEntradas(atual, entradas);
+  if (r.novos) aplicar(r.banco);
+  return r.novos;
+}
 
 export const exportarBackup = (): string => JSON.stringify({ app: "vyntem", exportadoEm: new Date().toISOString(), ...atual });
 /** Lê um backup colado. Devolve o texto do problema, ou "" se deu certo. */

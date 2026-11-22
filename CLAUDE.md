@@ -16,6 +16,8 @@
 - Tudo que vem do disco ou de backup passa por `limparBanco` (`dados.ts`). Lógica pura fica em `dados.ts`, `calculos.ts`, `parser.ts`, `perguntas.ts` (testada em `app/teste`); imports entre esses arquivos levam `.ts` para o teste do Node rodar.
 - Transferência entre contas não é receita nem despesa. Cartão: saldo negativo = dívida; pagar a fatura é uma transferência para o cartão.
 
+- Vênus → Vyntem (`app/src/caixa.ts`, lógica pura testada em `teste/caixa.test.mjs`; `sincCaixa.ts` busca no servidor): venda PAGA e confirmada na Vênus vira lançamento de receita na conta `a-loja` "Caixa da loja" (categoria "Vendas da loja", nota "Pedido #N · Cliente"); cancelada ou devolvida vira estorno (despesa). O id do lançamento é fixo (`loja-<tipo>-<ref>`): reaplicar nunca duplica. Pedido aguardando pagamento nunca entra. Servidor: `GET /financas/caixa?desde=<seq>` (`servidor/src/financas/caixa.js`).
+
 ## Inteligência artificial
 - DeepSeek lê texto/perguntas; Groq lê a foto da nota (plano gratuito). Entrada e licença pelo Vetorial ID. As chaves ficam no servidor, nunca no app. Contrato em `docs/IA.md`. Sem servidor/internet o app usa o entendimento local.
 

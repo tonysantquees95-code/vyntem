@@ -17,6 +17,7 @@ export const NOVIDADES: Novidade[] = [
   { id: 10, data: "2026-11-17", tipo: "novo", titulo: "Recuperar a senha sem e-mail", texto: "Ao criar a conta você define uma senha de recuperação de 6 números e uma pergunta secreta com a resposta. Se esquecer a senha, toque em “Recupere aqui” na tela de entrada, escolha um dos dois jeitos e crie a senha nova. Guarde bem esses dados." },
   { id: 11, data: "2026-11-18", tipo: "melhoria", titulo: "Botões mais fáceis de tocar", texto: "Os botões de fechar, pular e ver mais ficaram maiores, para acertar com o dedo sem errar." },
   { id: 12, data: "2026-11-21", tipo: "novo", titulo: "Feedback e relato de erros", texto: "Em Ajustes › Sobre o Vyntem você encontra Enviar feedback e Reportar um erro: conte o que achou, avise quando algo não funcionou e responda uma pesquisa rápida de 1 minuto. O Vyntem está em fase de testes (beta) e cada relato ajuda a melhorar." },
+  { id: 13, data: "2026-11-22", tipo: "novo", titulo: "Vendas da Vênus caem no seu caixa", texto: "Se você usa a Vênus na sua loja, cada venda paga e confirmada entra sozinha aqui, na conta Caixa da loja, com o número do pedido e o nome do cliente. Pedido aguardando pagamento não entra, e venda cancelada ou devolvida vira um estorno. Ative a ligação na Vênus, em Minha loja." },
 ];
 
 export const ROTULO: Record<TipoNovidade, string> = { novo: "Novo", melhoria: "Melhorou", correcao: "Corrigido" };
