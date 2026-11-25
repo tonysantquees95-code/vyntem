@@ -120,7 +120,7 @@ jobs:
           mkdir -p $D
           cp ../android/src/*.java $D/
           # permissões: câmera (foto da nota, pedida só ao tocar), rede e instalar a própria atualização
-          PERMS='<uses-permission android:name="android.permission.CAMERA" />\n    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />\n    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />\n    <uses-feature android:name="android.hardware.camera" android:required="false" />'
+          PERMS='<uses-permission android:name="android.permission.POST_NOTIFICATIONS" />\n    <uses-permission android:name="android.permission.CAMERA" />\n    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />\n    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />\n    <uses-feature android:name="android.hardware.camera" android:required="false" />'
           sed -i "s#<application#$PERMS\n    <application#" android/app/src/main/AndroidManifest.xml
           grep -c "uses-permission" android/app/src/main/AndroidManifest.xml
           # instalar a atualização baixada: o Capacitor já declara o FileProvider ".fileprovider"; aqui liberamos a pasta de cache (atualização) e as pastas de fotos (câmera)

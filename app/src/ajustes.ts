@@ -33,8 +33,8 @@ export const ESTILOS: EstiloDeBotao[] = [
 ];
 
 export const COR_PERSONALIZADA = "personalizada";
-export interface Ajustes { cor: string; corPersonalizada: string; formato: string; estilo: string; icones: string; autoAtualizar: boolean; /** esconde os valores nas telas (para usar em público) */ esconderValores: boolean }
-export const AJUSTES_PADRAO: Ajustes = { cor: "menta", corPersonalizada: "#22e3c4", formato: "redondo", estilo: "solido", icones: "padrao", autoAtualizar: true, esconderValores: false };
+export interface Ajustes { cor: string; corPersonalizada: string; formato: string; estilo: string; icones: string; autoAtualizar: boolean; /** esconde os valores nas telas (para usar em público) */ esconderValores: boolean; /** avisa no celular quando uma conta está para vencer */ lembretes: boolean }
+export const AJUSTES_PADRAO: Ajustes = { cor: "menta", corPersonalizada: "#22e3c4", formato: "redondo", estilo: "solido", icones: "padrao", autoAtualizar: true, esconderValores: false, lembretes: true };
 
 export const hexValido = (v: unknown): v is string => typeof v === "string" && /^#[0-9a-fA-F]{6}$/.test(v);
 
@@ -84,6 +84,7 @@ export function limparAjustes(v: unknown): Ajustes {
     icones: ICONES.some((i) => i.id === o.icones) ? (o.icones as string) : AJUSTES_PADRAO.icones,
     autoAtualizar: typeof o.autoAtualizar === "boolean" ? o.autoAtualizar : AJUSTES_PADRAO.autoAtualizar,
     esconderValores: typeof o.esconderValores === "boolean" ? o.esconderValores : AJUSTES_PADRAO.esconderValores,
+    lembretes: typeof o.lembretes === "boolean" ? o.lembretes : AJUSTES_PADRAO.lembretes,
   };
 }
 

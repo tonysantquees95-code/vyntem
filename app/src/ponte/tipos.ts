@@ -6,12 +6,18 @@ export interface Recursos {
   atualizaSozinho: boolean;
 }
 
+export interface LembreteDoAparelho { numero: number; quando: number; titulo: string; corpo: string }
+
 export interface Motor {
   plataforma: "windows" | "android" | "demonstracao";
   recursos: Recursos;
   abrirLink(url: string): Promise<void>;
   /** Abre a câmera do aparelho e devolve a foto (null = a pessoa desistiu). Só existe onde há câmera de verdade (Android). */
   tirarFoto?(): Promise<Blob | null>;
+  /** Lembretes de contas a vencer (notificações do próprio aparelho, sem internet). Só existe no Android; pede a permissão na hora. */
+  agendarLembretes?(lista: LembreteDoAparelho[]): Promise<"ok" | "negado">;
+  /** Entrega um arquivo à pessoa: no Android abre o "Compartilhar" (WhatsApp, e-mail, Drive…); no computador baixa. */
+  entregarArquivo(nome: string, bytes: Uint8Array, tipo: string): Promise<"compartilhado" | "baixado">;
   /** Atualização em duas etapas: baixa com andamento e só instala quando a pessoa escolher. */
   baixarAtualizacao(url: string, sha256: string, tamanho: number): Promise<void>;
   progressoAtualizacao(): Promise<ProgressoAtualizacao>;

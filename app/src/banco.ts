@@ -1,7 +1,9 @@
 // Onde ficam os seus dados: só neste aparelho (localStorage). Nada sai daqui sem você pedir.
-import { useSyncExternalStore } from "react";
+import { useMemo, useSyncExternalStore } from "react";
 import { aplicarEntradas } from "./caixa.ts";
-import { bancoVazio, limparBanco, type Banco, type Categoria, type Conta, type Lancamento } from "./dados";
+import { bancoVazio, limparBanco, type Banco, type Categoria, type Conta, type Lancamento, type Pendencia } from "./dados";
+import * as Pend from "./pendencias.ts";
+import { filtrarPorVisao, type Visao } from "./escopo.ts";
 
 const CHAVE = "vyntem.dados";
 let atual: Banco = carregar();
@@ -22,6 +24,27 @@ export const bancoAtual = (): Banco => atual;
 export const erroDeGravacao = (): string => ultimoErro;
 export function assinarBanco(f: () => void): () => void { ouvintes.add(f); return () => { ouvintes.delete(f); }; }
 export const useBanco = (): Banco => useSyncExternalStore(assinarBanco, bancoAtual);
+
+// Pessoal × Negócio: qual lado a pessoa está olhando (vale para Início, Lançamentos, Gráficos, Contas e A pagar).
+const CHAVE_VISAO = "vyntem.visao";
+let visaoAtual: Visao = (() => { try { const v = localStorage.getItem(CHAVE_VISAO); return v === "pessoal" || v === "negocio" ? v : "tudo"; } catch { return "tudo"; } })();
+const ouvintesVisao = new Set<() => void>();
+export const visaoAtualDaPessoa = (): Visao => visaoAtual;
+export function mudarVisao(v: Visao): void {
+  visaoAtual = v; try { localStorage.setItem(CHAVE_VISAO, v); } catch { /* ok */ }
+  ouvintesVisao.forEach((f) => f());
+}
+export const useVisao = (): Visao => useSyncExternalStore((f) => { ouvintesVisao.add(f); return () => { ouvintesVisao.delete(f); }; }, visaoAtualDaPessoa);
+/** O banco só com o lado escolhido (para mostrar). Para mudar dados, as funções abaixo mexem no banco inteiro. */
+export function useBancoDaVisao(): Banco {
+  const banco = useBanco(), visao = useVisao();
+  return useMemo(() => filtrarPorVisao(banco, visao), [banco, visao]);
+}
+
+export const salvarPendencia = (p: Pendencia): string => aplicar(Pend.salvarPendencia(atual, p));
+export const removerPendencia = (id: string): string => aplicar(Pend.removerPendencia(atual, id));
+export const pagarPendencia = (id: string, contaId: string, data: string): string => aplicar(Pend.pagar(atual, id, contaId, data));
+export const desfazerPagamentoDaPendencia = (id: string): string => aplicar(Pend.desfazerPagamento(atual, id));
 
 export const adicionarLancamentos = (ls: Lancamento[]): string => aplicar({ ...atual, lancamentos: [...atual.lancamentos, ...ls] });
 export const atualizarLancamento = (l: Lancamento): string => aplicar({ ...atual, lancamentos: atual.lancamentos.map((x) => (x.id === l.id ? l : x)) });

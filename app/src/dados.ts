@@ -1,6 +1,7 @@
 // Modelo de dados do Vyntem. Todo dinheiro é guardado em CENTAVOS (número inteiro): nada de erro de arredondamento.
 export type TipoConta = "dinheiro" | "banco" | "poupanca" | "cartao";
 export type TipoLancamento = "receita" | "despesa" | "transferencia";
+export type Escopo = "pessoal" | "negocio";
 export type OrigemLancamento = "manual" | "texto" | "foto" | "voz";
 
 export interface Conta {
@@ -8,6 +9,8 @@ export interface Conta {
   /** só cartão: limite, dia em que a fatura fecha e dia em que vence */
   limite?: number; diaFechamento?: number; diaVencimento?: number;
   arquivada?: boolean;
+  /** de quem é o dinheiro: pessoal ou do negócio (padrão: pessoal; o Caixa da loja é do negócio) */
+  escopo?: Escopo;
 }
 export interface Categoria { id: string; nome: string; tipo: "receita" | "despesa"; icone: string; cor: string; /** subcategorias para escolher com um toque (ex.: Transporte › Gasolina) */ subs?: string[] }
 export interface Parcela { grupo: string; n: number; de: number }
@@ -21,7 +24,18 @@ export interface Lancamento {
   /** subcategoria escolhida (ex.: Gasolina), da lista da categoria */ sub?: string;
   nota: string; temFoto?: boolean; origem: OrigemLancamento; parcela?: Parcela; criadoEm: number;
 }
-export interface Banco { versao: 1; contas: Conta[]; categorias: Categoria[]; lancamentos: Lancamento[] }
+/** Conta a pagar ou a receber (ainda não aconteceu). Ao marcar como paga, vira um lançamento de id `pend-<id>`. */
+export interface Pendencia {
+  id: string; tipo: "receita" | "despesa";
+  /** centavos, sempre positivo */
+  valor: number;
+  /** AAAA-MM-DD */
+  vencimento: string;
+  nota: string; escopo: Escopo; categoriaId?: string; contaId?: string;
+  /** AAAA-MM-DD do dia em que foi paga ou recebida */
+  pagoEm?: string;
+}
+export interface Banco { versao: 1; contas: Conta[]; categorias: Categoria[]; lancamentos: Lancamento[]; pendencias: Pendencia[] }
 
 export const CORES_DE_CATEGORIA = ["#f87171", "#fb923c", "#fbbf24", "#a3e635", "#34d399", "#22d3ee", "#60a5fa", "#a78bfa", "#e879f9", "#f472b6", "#94a3b8"] as const;
 
@@ -71,7 +85,7 @@ export const CONTAS_PADRAO: Conta[] = [
   { id: "a-banco", nome: "Conta do banco", tipo: "banco", saldoInicial: 0, cor: "#60a5fa" },
 ];
 
-export const bancoVazio = (): Banco => ({ versao: 1, contas: CONTAS_PADRAO.map((c) => ({ ...c })), categorias: CATEGORIAS_PADRAO.map((c) => ({ ...c, ...(SUBS_PADRAO[c.id] ? { subs: [...SUBS_PADRAO[c.id]!] } : {}) })), lancamentos: [] });
+export const bancoVazio = (): Banco => ({ versao: 1, pendencias: [], contas: CONTAS_PADRAO.map((c) => ({ ...c })), categorias: CATEGORIAS_PADRAO.map((c) => ({ ...c, ...(SUBS_PADRAO[c.id] ? { subs: [...SUBS_PADRAO[c.id]!] } : {}) })), lancamentos: [] });
 
 const ehObj = (v: unknown): v is Record<string, unknown> => !!v && typeof v === "object" && !Array.isArray(v);
 const txt = (v: unknown, max = 80): string => (typeof v === "string" ? v.slice(0, max) : "");
@@ -97,6 +111,7 @@ export function limparBanco(v: unknown): Banco {
       conta.diaVencimento = Math.min(28, Math.max(1, inteiro(c.diaVencimento, 12)));
     }
     if (c.arquivada === true) conta.arquivada = true;
+    conta.escopo = c.escopo === "negocio" || (c.escopo !== "pessoal" && conta.id === "a-loja") ? "negocio" : "pessoal";
     contas.push(conta);
   }
   const categorias: Categoria[] = [];
@@ -124,8 +139,19 @@ export function limparBanco(v: unknown): Banco {
     if (ehObj(l.parcela) && txt(l.parcela.grupo) && inteiro(l.parcela.n) >= 1 && inteiro(l.parcela.de) >= inteiro(l.parcela.n)) novo.parcela = { grupo: txt(l.parcela.grupo), n: inteiro(l.parcela.n), de: inteiro(l.parcela.de) };
     lancamentos.push(novo);
   }
+  const pendencias: Pendencia[] = [];
+  for (const p of Array.isArray(v.pendencias) ? v.pendencias : []) {
+    if (!ehObj(p) || !txt(p.id) || !dataValida(p.vencimento)) continue;
+    const valor = Math.abs(inteiro(p.valor));
+    if (valor <= 0) continue;
+    const nova: Pendencia = { id: txt(p.id), tipo: p.tipo === "receita" ? "receita" : "despesa", valor, vencimento: p.vencimento, nota: txt(p.nota, 120), escopo: p.escopo === "negocio" ? "negocio" : "pessoal" };
+    if (txt(p.categoriaId)) nova.categoriaId = txt(p.categoriaId);
+    if (txt(p.contaId) && ids.has(txt(p.contaId))) nova.contaId = txt(p.contaId);
+    if (dataValida(p.pagoEm)) nova.pagoEm = p.pagoEm;
+    pendencias.push(nova);
+  }
   const base = bancoVazio();
-  return { versao: 1, contas: contas.length ? contas : base.contas, categorias: categorias.length ? categorias : base.categorias, lancamentos };
+  return { versao: 1, pendencias, contas: contas.length ? contas : base.contas, categorias: categorias.length ? categorias : base.categorias, lancamentos };
 }
 
 let semente = 0;

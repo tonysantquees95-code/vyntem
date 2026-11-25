@@ -1,5 +1,10 @@
 import { useState } from "react";
-import { useBanco } from "../banco";
+import { useMotor } from "../estado";
+import { montarRelatorio, nomeDoArquivoDoRelatorio, pdfDoRelatorio } from "../relatorio";
+import { useVisao } from "../banco";
+import { Aviso, Botao } from "../ui";
+import { Icone } from "../icones";
+import { useBancoDaVisao as useBanco } from "../banco";
 import { filtrar, hojeISO, intervalo, mesesDoAno, moverPeriodo, porCategoria, reais, serieMensal, totais, type ModoPeriodo } from "../calculos";
 import { BarrasMensais, Cartao, LinhaDoSaldo, Rosca } from "../ui";
 import { Bolinha, Chips, Dinheiro, NavegadorDePeriodo, Vazio } from "../comuns";
@@ -19,6 +24,18 @@ export function Graficos() {
   const total = fatias.reduce((s, f) => s + f.total, 0);
   const meses = mesesDoAno(Number(ref.slice(0, 4)), banco.lancamentos);
   const t = totais(doPeriodo);
+  const motor = useMotor(), visao = useVisao();
+  const [gerando, setGerando] = useState(false);
+  const [relAviso, setRelAviso] = useState<{ tom: "ok" | "erro"; texto: string } | null>(null);
+  async function gerarRelatorio() {
+    setGerando(true); setRelAviso(null);
+    try {
+      const r = montarRelatorio(banco, ref, visao, hoje);
+      const feito = await motor.entregarArquivo(nomeDoArquivoDoRelatorio(r), await pdfDoRelatorio(r), "application/pdf");
+      setRelAviso({ tom: "ok", texto: feito === "baixado" ? "Relatório baixado na pasta de downloads." : "Relatório pronto: escolha para onde enviar." });
+    } catch (e) { setRelAviso({ tom: "erro", texto: e instanceof Error && e.message ? `Não consegui gerar o relatório: ${e.message}` : "Não consegui gerar o relatório agora." }); }
+    finally { setGerando(false); }
+  }
   return (
     <div className="space-y-3">
       <Chips itens={PERIODOS} valor={modo} aoMudar={setModo} rotulo="Período" />
@@ -41,6 +58,11 @@ export function Graficos() {
       <Cartao titulo={`Receitas e despesas em ${ref.slice(0, 4)}`}>
         <BarrasMensais pontos={meses.map((m) => ({ rotulo: m.rotulo.slice(0, 3), receita: m.receita, despesa: m.despesa }))} />
         <div className="mt-2 flex justify-center gap-4 text-xs text-suave"><span className="flex items-center gap-1"><i className="size-2.5 rounded-sm bg-neon" />Receitas</span><span className="flex items-center gap-1"><i className="size-2.5 rounded-sm bg-[#f87171]" />Despesas</span></div>
+      </Cartao>
+      <Cartao titulo="Relatório do mês em PDF">
+        <p className="mb-3 text-xs text-suave">Entradas, saídas, categorias, maiores gastos e contas em aberto de <span className="capitalize">{intervalo("mes", ref).rotulo}</span>{visao === "tudo" ? "" : `, só do lado ${visao === "negocio" ? "Negócio" : "Pessoal"}`}. Feito no seu aparelho, sem valor fiscal.</p>
+        <Botao variante="primario" className="w-full" disabled={gerando} onClick={() => void gerarRelatorio()}><Icone nome="relatorio" tam={18} /> {gerando ? "Gerando…" : "Gerar relatório em PDF"}</Botao>
+        {relAviso && <div className="mt-3"><Aviso tom={relAviso.tom}>{relAviso.texto}</Aviso></div>}
       </Cartao>
       <p className="px-1 text-center text-xs text-suave">No período: <Dinheiro v={t.receita} className="text-neon" /> recebidos e <Dinheiro v={t.despesa} className="text-[#f87171]" /> gastos.</p>
     </div>

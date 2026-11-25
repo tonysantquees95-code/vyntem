@@ -32,3 +32,10 @@
 
 ## Feedback e relato de erro
 - Ajustes › Sobre tem "Enviar feedback" e "Reportar um erro": abrem `telas/FeedbackDoApp.tsx` (página do servidor `/feedback?app=vyntem&v=<versão>&p=<plataforma>` num iframe, com o visual do app). Os relatos chegam no Painel Dev › Feedback. Windows: o CSP do `tauri.conf.json` precisa de `frame-src` do servidor. Cenário `feedback` no teste visual.
+
+## Contas a pagar/receber, Pessoal/Negócio e relatório em PDF
+- Pendências (`app/src/pendencias.ts`, pura e testada em `teste/negocio.test.mjs`): `Banco.pendencias`; pagar cria o lançamento de id fixo `pend-<id>` (reaplicar não duplica) e desfazer apaga. Tela `telas/Pendencias.tsx` (aba "A pagar e receber"). Lembretes: `lembretes()` (véspera 18h e dia 9h, só futuros, até 60) → `motor.agendarLembretes` (Capacitor LocalNotifications; só pede a permissão POST_NOTIFICATIONS quando há lembrete; `POST_NOTIFICATIONS` também está no `PERMS` do workflow). Chave em Ajustes: "Lembrar das contas a vencer". A permissão é explicada na apresentação antes de pedir (`VERSAO_DOS_TERMOS` = 3).
+- Pessoal/Negócio (`escopo.ts`): cada conta tem `escopo`; a conta `a-loja` nasce como negócio. A visão (Tudo/Pessoal/Negócio, `vyntem.visao`) filtra Início, Lançamentos, A pagar, Gráficos e Contas (`useBancoDaVisao`).
+- Relatório do mês (`relatorio.ts`): `montarRelatorio` + `pdfDoRelatorio` (pdf-lib, A4) em Gráficos; sai por `motor.entregarArquivo` (Android: Filesystem cache + Share; outros: download).
+- Dependências novas: pdf-lib, @capacitor/local-notifications, @capacitor/filesystem, @capacitor/share (versão 7). Notificação e compartilhamento só dá para testar de verdade no aparelho.
+- Teste visual: modo "contas" (`bancoComContas()`) com cenários `pendencias-*`, `inicio-contas-a-vencer`, `visao-*`, `conta-escopo`, `relatorio-pdf`.

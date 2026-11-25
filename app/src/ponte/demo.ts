@@ -1,4 +1,5 @@
 import type { Motor } from "./tipos";
+import { baixarArquivo } from "./baixar";
 
 /** Navegador comum (sem app instalado): tudo funciona, só não há atualização automática. */
 export function motorDemo(): Motor {
@@ -6,6 +7,7 @@ export function motorDemo(): Motor {
   return {
     plataforma: "demonstracao",
     recursos: { atualizaSozinho: false },
+    entregarArquivo: baixarArquivo,
     abrirLink: async (url) => { window.open(url, "_blank", "noopener"); },
     instalarAtualizacao: semApp,
     baixarAtualizacao: semApp,

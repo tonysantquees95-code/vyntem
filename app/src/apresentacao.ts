@@ -1,6 +1,6 @@
 // Primeira abertura: conhecer as funções, entender a permissão da câmera e aceitar os termos.
 // Mudou o texto dos termos: suba VERSAO_DOS_TERMOS e a pessoa aceita de novo.
-export const VERSAO_DOS_TERMOS = 2;
+export const VERSAO_DOS_TERMOS = 3;
 const CHAVE_TERMOS = "vyntem.termos";
 const CHAVE_TOUR = "vyntem.tour";
 
@@ -12,7 +12,9 @@ export const TOUR: PassoDoTour[] = [
   { icone: "📷", titulo: "Foto da nota", texto: "Fotografe uma nota ou um comprovante (ou escolha da galeria) e a IA lê o valor, a loja e a data, e já lança o gasto.", como: ["Errou algo? Toque em Editar ou Desfazer na conversa.", "A foto fica só neste aparelho, anexada ao lançamento."] },
   { icone: "📅", titulo: "Diário, calendário e mais", texto: "Veja os gastos por dia, no calendário com o total de cada dia, por semana, por mês e no total, e navegue pelos períodos.", como: ["Toque num dia do calendário para ver os lançamentos dele.", "Filtre por conta quando quiser."] },
   { icone: "🛍️", titulo: "Junto com a Vênus", texto: "Quem vende com a Vênus pode ligar as duas: cada venda paga e confirmada cai sozinha aqui, no Caixa da loja, com o número do pedido e o nome do cliente.", como: ["Ative em Minha loja, na Vênus.", "Pedido aguardando pagamento não entra; cancelado ou devolvido vira estorno."] },
-  { icone: "🍩", titulo: "Gráficos", texto: "Rosca por categoria com porcentagens, linha do seu saldo e barras de receitas e despesas mês a mês.", como: ["Crie categorias com o ícone e a cor que quiser.", "Toque numa categoria para ver o que entrou nela."] },
+  { icone: "⏰", titulo: "Contas a pagar e a receber", texto: "Cadastre o que vai vencer (aluguel, fornecedor, uma venda a receber). O Vyntem mostra o que está atrasado, o que vence hoje e nos próximos dias, e avisa no celular. Ao tocar em Paguei ou Recebi, o lançamento é feito sozinho.", como: ["Abra A pagar e receber no menu, ou veja o resumo na tela Início.", "Os avisos chegam na véspera (18h) e no dia (9h). Dá para desligar em Ajustes."] },
+  { icone: "🏪", titulo: "Pessoal e Negócio", texto: "Marque cada conta como Pessoal ou Negócio e use a chave no topo (Tudo, Pessoal, Negócio) para ver só um lado. O Caixa da loja da Vênus já é do Negócio.", como: ["Em Contas, toque em editar e escolha É do quê?.", "O relatório em PDF também respeita o lado que você escolheu."] },
+  { icone: "🍩", titulo: "Gráficos", texto: "Rosca por categoria com porcentagens, linha do seu saldo e barras de receitas e despesas mês a mês. No fim da tela há o relatório do mês em PDF, para guardar ou mandar ao contador.", como: ["Crie categorias com o ícone e a cor que quiser.", "Toque numa categoria para ver o que entrou nela."] },
   { icone: "💳", titulo: "Contas e cartões", texto: "Dinheiro, banco e cartão de crédito com fatura, limite, fechamento e vencimento. Transferências entre contas não contam como gasto.", como: ["Parcelou? Informe em quantas vezes e o Vyntem distribui nas faturas.", "Pagou a fatura? Registre como transferência para o cartão."] },
   { icone: "🔄", titulo: "Sempre atualizado", texto: "Ligue Atualizar sozinho em Ajustes e o Vyntem busca versões novas e mostra o que mudou. Em Personalizar você muda cor, botões e ícones.", como: ["Seus dados ficam só neste aparelho; faça cópia em Ajustes › Cópia de segurança."] },
 ];
@@ -23,7 +25,7 @@ export const TERMOS: { titulo: string; texto: string }[] = [
   { titulo: "3. Seus dados", texto: "Os seus lançamentos, contas, categorias e fotos ficam guardados neste aparelho. A Vetorial Tech não os recebe, a menos que você use um recurso de inteligência artificial (item 5)." },
   { titulo: "4. Cópia de segurança", texto: "Se você apagar os dados do app ou trocar de aparelho, perde o que não copiou. Use Ajustes › Cópia de segurança para guardar uma cópia." },
   { titulo: "5. Inteligência artificial", texto: "Para ler a foto de uma nota ou responder perguntas mais livres, o texto ou a imagem enviados são processados por serviços de IA contratados pela Vetorial Tech. Só é enviado o que você escolhe analisar. Sem internet, o Vyntem usa o entendimento básico do próprio aparelho." },
-  { titulo: "6. Câmera", texto: "A câmera só é usada quando você toca em tirar foto de uma nota. Você pode retirar a permissão nas configurações do aparelho; o resto do app continua funcionando." },
+  { titulo: "6. Câmera e avisos", texto: "A câmera só é usada quando você toca em tirar foto de uma nota. Os avisos (notificações) só são usados para lembrar do vencimento das contas que você cadastrar, e são agendados no próprio aparelho. Você pode retirar essas permissões nas configurações do aparelho; o resto do app continua funcionando." },
   { titulo: "7. Não é consultoria", texto: "As dicas do Vyntem são sugestões automáticas e não substituem orientação financeira profissional. Confira sempre os valores lidos pela IA antes de salvar." },
   { titulo: "8. Garantias", texto: "O Vyntem é oferecido como está. A Vetorial Tech não se responsabiliza por perdas decorrentes do uso, por isso mantenha cópias de segurança." },
   { titulo: "9. Mudanças", texto: "Estes termos podem mudar. Quando mudarem, o Vyntem pede que você aceite de novo antes de continuar." },

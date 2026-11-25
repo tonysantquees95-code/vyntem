@@ -22,13 +22,18 @@ import { Graficos } from "./telas/Graficos";
 import { Contas } from "./telas/Contas";
 import { Categorias } from "./telas/Categorias";
 import { Assistente } from "./telas/Assistente";
+import { Pendencias } from "./telas/Pendencias";
+import { lembretes } from "./pendencias";
+import { VISOES } from "./escopo";
+import { Chips } from "./comuns";
 import { NovoLancamento, type PedidoDeLancamento } from "./telas/NovoLancamento";
-import { erroDeGravacao, useBanco } from "./banco";
+import { erroDeGravacao, mudarVisao, useBanco, useVisao } from "./banco";
 import { sincronizarCaixa } from "./sincCaixa";
 
 const ABAS = [
   { id: "inicio", rotulo: "Início", icone: "inicio" },
   { id: "lancamentos", rotulo: "Lançamentos", icone: "lancamentos" },
+  { id: "pendencias", rotulo: "A pagar e receber", icone: "pendencias" },
   { id: "graficos", rotulo: "Gráficos", icone: "graficos" },
   { id: "contas", rotulo: "Contas", icone: "contas" },
   { id: "categorias", rotulo: "Categorias", icone: "categorias" },
@@ -43,7 +48,8 @@ export function App() {
   const motor = useMotor();
   const demo = motor.plataforma === "demonstracao";
   const [ajustes, definirAjustes] = useAjustes();
-  useBanco();
+  const banco = useBanco();
+  const visao = useVisao();
   const [sessao, setSessao] = useState<Sessao | null>(sessaoGuardada);
   const definirSessao = (s: Sessao | null) => { guardarSessao(s); setSessao(s); };
   // Ao abrir: confere de novo o login e a licença no servidor (sem internet, vale o recibo assinado).
@@ -61,6 +67,13 @@ export function App() {
     document.addEventListener("visibilitychange", buscar);
     return () => { clearInterval(t); document.removeEventListener("visibilitychange", buscar); };
   }, [sessao?.token, demo]);
+  // Lembretes de contas a vencer (Android): a cada mudança nas contas, troca a lista de avisos do aparelho.
+  const [avisoLembrete, setAvisoLembrete] = useState("");
+  useEffect(() => {
+    if (!motor.agendarLembretes) return;
+    const lista = ajustes.lembretes ? lembretes(banco.pendencias, new Date()) : [];
+    void motor.agendarLembretes(lista).then((r) => setAvisoLembrete(r === "negado" && lista.length ? "Os avisos de vencimento estão bloqueados. Libere as notificações do Vyntem em Configurações do Android › Apps › Vyntem › Notificações." : ""));
+  }, [motor, banco.pendencias, ajustes.lembretes]);
   const sairDaConta = () => { if (sessao) void sair(sessao.token); definirSessao(null); };
   const [aba, setAba] = useState<IdAba>("inicio");
   const [menu, setMenu] = useState(false);
@@ -115,6 +128,7 @@ export function App() {
   const telas: Record<IdAba, ReactNode> = {
     inicio: <Inicio ir={ir} aoEditar={(l) => setPedido({ editar: l })} />,
     lancamentos: <Lancamentos aoEditar={(l) => setPedido({ editar: l })} />,
+    pendencias: <Pendencias aviso={avisoLembrete} />,
     graficos: <Graficos />,
     contas: <Contas aoPagarFatura={(id, valor) => setPedido({ transferencia: { destinoId: id, valor } })} />,
     categorias: <Categorias />,
@@ -147,6 +161,7 @@ export function App() {
         {falha && <div className="mb-3"><Aviso tom="erro">{falha}</Aviso></div>}
         {nova && <AtualizacaoAviso nova={nova} baixarSozinho={baixarAgora === nova.numero || ajustes.autoAtualizar} aoSemSuporte={() => void atualizar(nova)} />}
         {avisoAtualizacao && <div className="mb-3"><Aviso tom="ok">{avisoAtualizacao}</Aviso></div>}
+        {(["inicio", "lancamentos", "pendencias", "graficos", "contas"] as readonly IdAba[]).includes(aba) && <div className="mb-3"><Chips itens={VISOES} valor={visao} aoMudar={mudarVisao} rotulo="Ver" /></div>}
         <main className="flex min-h-0 flex-1 flex-col">{telas[aba]}</main>
       </div>
 

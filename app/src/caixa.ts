@@ -32,7 +32,7 @@ export function aplicarEntradas(banco: Banco, entradas: unknown[], agora: number
   const existentes = new Set(banco.lancamentos.map((l) => l.id));
   const faltam = validas.filter((e) => !existentes.has(idDoLancamento(e)));
   if (!faltam.length) return { banco, novos: 0 };
-  const contas: Conta[] = banco.contas.some((c) => c.id === CONTA_DA_LOJA) ? banco.contas : [...banco.contas, { id: CONTA_DA_LOJA, nome: "Caixa da loja", tipo: "banco", saldoInicial: 0, cor: "#22d3ee" }];
+  const contas: Conta[] = banco.contas.some((c) => c.id === CONTA_DA_LOJA) ? banco.contas : [...banco.contas, { id: CONTA_DA_LOJA, nome: "Caixa da loja", tipo: "banco", saldoInicial: 0, cor: "#22d3ee", escopo: "negocio" }];
   const categorias: Categoria[] = [...banco.categorias];
   const garantir = (c: Categoria) => { if (!categorias.some((x) => x.id === c.id)) categorias.push(c); };
   if (faltam.some((e) => e.tipo === "entrada")) garantir({ id: CATEGORIA_VENDAS_LOJA, nome: "Vendas da loja", tipo: "receita", icone: "freela", cor: "#22d3ee" });

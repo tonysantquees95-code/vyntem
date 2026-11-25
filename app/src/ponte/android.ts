@@ -29,6 +29,30 @@ export function motorAndroid(): Motor {
         throw new Error("Não consegui abrir a câmera.");
       }
     },
+    // lembretes de contas a vencer: notificações locais (sem servidor). Pede a permissão na hora; trocar a lista cancela as anteriores.
+    agendarLembretes: async (lista) => {
+      const { LocalNotifications } = await import("@capacitor/local-notifications");
+      try {
+        let p = await LocalNotifications.checkPermissions();
+        if (p.display !== "granted" && lista.length) p = await LocalNotifications.requestPermissions(); // só pede quando há algo para avisar
+        if (p.display !== "granted") return lista.length ? "negado" : "ok";
+        const pendentes = await LocalNotifications.getPending();
+        if (pendentes.notifications.length) await LocalNotifications.cancel({ notifications: pendentes.notifications.map((n) => ({ id: n.id })) });
+        if (lista.length) await LocalNotifications.schedule({ notifications: lista.map((l) => ({ id: l.numero, title: l.titulo, body: l.corpo, schedule: { at: new Date(l.quando), allowWhileIdle: true } })) });
+        return "ok";
+      } catch { return "negado"; }
+    },
+    // arquivo (relatório em PDF): grava no cache do app e abre o "Compartilhar" do Android
+    entregarArquivo: async (nome, bytes, tipo) => {
+      const { Filesystem, Directory } = await import("@capacitor/filesystem");
+      const { Share } = await import("@capacitor/share");
+      let bin = ""; for (let i = 0; i < bytes.length; i += 0x8000) bin += String.fromCharCode(...bytes.subarray(i, i + 0x8000));
+      await Filesystem.writeFile({ path: nome, data: btoa(bin), directory: Directory.Cache });
+      const { uri } = await Filesystem.getUri({ path: nome, directory: Directory.Cache });
+      void tipo;
+      try { await Share.share({ title: nome, url: uri, dialogTitle: "Enviar relatório" }); } catch (e) { if (!/cancel/i.test(e instanceof Error ? e.message : String(e))) throw e; }
+      return "compartilhado";
+    },
     instalarAtualizacao: (url, sha256) => Vyntem.instalarAtualizacao({ url, sha256 }),
     baixarAtualizacao: (url, sha256, tamanho) => Vyntem.baixarAtualizacao({ url, sha256, tamanho }),
     progressoAtualizacao: () => Vyntem.progressoAtualizacao(),

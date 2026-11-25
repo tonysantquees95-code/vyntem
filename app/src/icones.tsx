@@ -13,13 +13,15 @@ function Svg({ children, tam = 24, style, ...r }: SVGProps<SVGSVGElement> & { ta
 }
 const L = { fill: "none" } as const;
 
-const MENU = ["inicio", "lancamentos", "calendario", "graficos", "contas", "categorias", "assistente", "ajustes", "menu", "fechar", "atualizar", "mais", "camera", "seta_e", "seta_d", "cartao", "lixeira", "editar", "check", "buscar", "filtro", "enviar", "olho", "olho_off", "conta"] as const;
+const MENU = ["inicio", "lancamentos", "pendencias", "relatorio", "calendario", "graficos", "contas", "categorias", "assistente", "ajustes", "menu", "fechar", "atualizar", "mais", "camera", "seta_e", "seta_d", "cartao", "lixeira", "editar", "check", "buscar", "filtro", "enviar", "olho", "olho_off", "conta"] as const;
 export const NOMES_DE_CATEGORIA = ["mercado", "restaurante", "casa", "transporte", "saude", "presente", "viagem", "pet", "luz", "carro", "beleza", "esporte", "educacao", "lazer", "roupas", "celular", "salario", "investimento", "freela", "outros"] as const;
 export type NomeIcone = (typeof MENU)[number] | (typeof NOMES_DE_CATEGORIA)[number];
 
 const DESENHOS: Record<NomeIcone, ReactElement> = {
   inicio: <path d="M4 11 12 4l8 7v8.5a1 1 0 0 1-1 1h-4.5V15h-5v5.5H5a1 1 0 0 1-1-1z" />,
   lancamentos: <path d="M8 6.5h12M8 12h12M8 17.5h12M4 6.5h.01M4 12h.01M4 17.5h.01" {...L} />,
+  pendencias: <g><circle cx="12" cy="12" r="8.5" {...L} /><path d="M12 7.5V12l3 2" {...L} /></g>,
+  relatorio: <g><path d="M6.5 3.5h7l4 4v12a1 1 0 0 1-1 1h-10a1 1 0 0 1-1-1v-15a1 1 0 0 1 1-1z" {...L} /><path d="M13.5 3.5v4h4M8.5 12h7M8.5 15.5h7" {...L} /></g>,
   calendario: <g><rect x="3.5" y="5" width="17" height="15.5" rx="2.5" /><path d="M3.5 10h17M8 3v4M16 3v4" {...L} /></g>,
   graficos: <g><path d="M12 3.5a8.5 8.5 0 1 0 8.5 8.5H12z" /><path d="M15 3.8A8.5 8.5 0 0 1 20.2 9H15z" {...L} /></g>,
   contas: <g><path d="M4 8a2 2 0 0 1 2-2h11a2 2 0 0 1 2 2v1.5H15a2.5 2.5 0 0 0 0 5h4V17a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z" /><circle cx="15.5" cy="12" r=".8" {...L} /></g>,

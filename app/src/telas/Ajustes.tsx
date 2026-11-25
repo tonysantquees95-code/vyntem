@@ -139,6 +139,7 @@ export function AjustesTela({ aoAtualizar, nova }: { aoAtualizar: (v: InfoVersao
       </Cartao>
 
       <Cartao titulo="Privacidade">
+        <Chave ligado={a.lembretes} aoMudar={(v) => definir({ lembretes: v })} rotulo="Lembrar das contas a vencer" detalhe="No Android, avisa na véspera (18h) e no dia do vencimento (9h) das contas a pagar e a receber. No computador o aviso aparece dentro do app." />
         <Chave ligado={a.esconderValores} aoMudar={(v) => definir({ esconderValores: v })} rotulo="Esconder os valores" detalhe="Borra os valores nas telas, para usar o app em público. Toque no olho no topo para mostrar por um instante." />
       </Cartao>
       <Cartao titulo="Cópia de segurança">

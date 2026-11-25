@@ -1,4 +1,5 @@
 import type { Motor } from "./tipos";
+import { baixarArquivo } from "./baixar";
 
 /** Windows: fala com os comandos em Rust do Tauri (desktop/src-tauri/src/main.rs). */
 export async function motorTauri(): Promise<Motor> {
@@ -6,6 +7,7 @@ export async function motorTauri(): Promise<Motor> {
   return {
     plataforma: "windows",
     recursos: { atualizaSozinho: true },
+    entregarArquivo: baixarArquivo,
     abrirLink: (url) => invoke("abrir_link", { url }),
     instalarAtualizacao: (url, sha256) => invoke("instalar_atualizacao", { url, sha256 }),
     baixarAtualizacao: (url, sha256, tamanho) => invoke("baixar_atualizacao", { url, sha256, tamanho }),

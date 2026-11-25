@@ -1,6 +1,6 @@
 import { Escolha } from "../seletores";
 import { useState } from "react";
-import { removerOuArquivarConta, salvarConta, useBanco } from "../banco";
+import { removerOuArquivarConta, salvarConta, useBancoDaVisao as useBanco, visaoAtualDaPessoa } from "../banco";
 import { chaveDaFaturaAberta, faturaDoCartao, hojeISO, limiteDisponivel, parseValor, resumoDasContas, saldoDaConta, dataBonita } from "../calculos";
 import { novoId, type Conta, type TipoConta } from "../dados";
 import { Icone } from "../icones";
@@ -61,13 +61,14 @@ function FormularioDeConta({ valor, aoFechar }: { valor: Conta | "nova" | null; 
   const [limite, setLimite] = useState("");
   const [fecha, setFecha] = useState("5");
   const [vence, setVence] = useState("12");
+  const [escopo, setEscopo] = useState<"pessoal" | "negocio">("pessoal");
   const [erro, setErro] = useState("");
   const [aviso, setAviso] = useState("");
   const [chave, setChave] = useState<unknown>(null);
   if (chave !== valor) { // carrega o formulário quando abre
     setChave(valor); setErro(""); setAviso("");
-    if (editando) { setNome(editando.nome); setTipo(editando.tipo); setSaldo(centavos(editando.saldoInicial)); setCor(editando.cor); setLimite(editando.limite ? centavos(editando.limite) : ""); setFecha(String(editando.diaFechamento ?? 5)); setVence(String(editando.diaVencimento ?? 12)); }
-    else { setNome(""); setTipo("banco"); setSaldo(""); setCor(CORES[1]!); setLimite(""); setFecha("5"); setVence("12"); }
+    if (editando) { setEscopo(editando.escopo ?? "pessoal"); setNome(editando.nome); setTipo(editando.tipo); setSaldo(centavos(editando.saldoInicial)); setCor(editando.cor); setLimite(editando.limite ? centavos(editando.limite) : ""); setFecha(String(editando.diaFechamento ?? 5)); setVence(String(editando.diaVencimento ?? 12)); }
+    else { setEscopo(visaoAtualDaPessoa() === "negocio" ? "negocio" : "pessoal"); setNome(""); setTipo("banco"); setSaldo(""); setCor(CORES[1]!); setLimite(""); setFecha("5"); setVence("12"); }
   }
   function salvar() {
     const n = nome.trim();
@@ -75,7 +76,7 @@ function FormularioDeConta({ valor, aoFechar }: { valor: Conta | "nova" | null; 
     const s = saldo.trim() ? parseValor(saldo.replace("-", "")) : 0;
     if (s === null) { setErro("Saldo inicial inválido."); return; }
     const sinal = saldo.trim().startsWith("-") ? -1 : 1;
-    const c: Conta = { id: editando?.id ?? novoId("a"), nome: n.slice(0, 40), tipo, saldoInicial: s * sinal, cor, arquivada: editando?.arquivada };
+    const c: Conta = { id: editando?.id ?? novoId("a"), nome: n.slice(0, 40), tipo, saldoInicial: s * sinal, cor, arquivada: editando?.arquivada, escopo };
     if (tipo === "cartao") {
       const lim = limite.trim() ? parseValor(limite) : 0;
       const f = Math.round(Number(fecha)), v = Math.round(Number(vence));
@@ -99,6 +100,12 @@ function FormularioDeConta({ valor, aoFechar }: { valor: Conta | "nova" | null; 
           <label className="block text-xs text-suave">Fecha dia<input inputMode="numeric" value={fecha} onChange={(e) => setFecha(e.target.value)} className="num mt-1 min-h-11 w-full rounded-xl border border-borda bg-transparent px-3 text-sm text-texto" /></label>
           <label className="block text-xs text-suave">Vence dia<input inputMode="numeric" value={vence} onChange={(e) => setVence(e.target.value)} className="num mt-1 min-h-11 w-full rounded-xl border border-borda bg-transparent px-3 text-sm text-texto" /></label>
         </div>}
+        <div>
+          <div className="mb-2 text-xs text-suave">É do quê?</div>
+          <div role="radiogroup" aria-label="É do quê" className="grid grid-cols-2 gap-2">
+            {([["pessoal", "Pessoal"], ["negocio", "Negócio"]] as const).map(([id, rot]) => <button key={id} role="radio" aria-checked={escopo === id} onClick={() => setEscopo(id)} className={`min-h-11 rounded-xl border text-sm transition ${escopo === id ? "border-neon bg-neon/10 text-texto" : "border-borda text-suave"}`}>{rot}</button>)}
+          </div>
+        </div>
         <div><div className="mb-2 text-xs text-suave">Cor</div><div className="flex flex-wrap gap-2">{CORES.map((c) => <button key={c} onClick={() => setCor(c)} aria-label={`Cor ${c}`} aria-pressed={cor === c} className={`size-9 rounded-full ring-2 ${cor === c ? "ring-white" : "ring-transparent"}`} style={{ background: c }} />)}</div></div>
         {erro && <Aviso tom="erro">{erro}</Aviso>}{aviso && <Aviso>{aviso}</Aviso>}
         <div className="flex gap-2 pt-1">

@@ -1,6 +1,6 @@
 import { Escolha } from "../seletores";
 import { useMemo, useState } from "react";
-import { useBanco } from "../banco";
+import { useBancoDaVisao as useBanco } from "../banco";
 import { agruparPorDia, calendarioDoMes, DIAS_CURTOS, filtrar, hojeISO, intervalo, mesesDoAno, moverPeriodo, reaisCurto, semanasDoMes, totais, type ModoPeriodo } from "../calculos";
 import type { Lancamento } from "../dados";
 import { Cartao } from "../ui";
