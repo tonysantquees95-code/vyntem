@@ -74,7 +74,7 @@ export function Assistente({ aoLancar }: { aoLancar: (p: PedidoDeLancamento) => 
   }
 
   async function foto(arq: Blob) {
-    add({ de: "eu", texto: "📷 Foto da nota", foto: arq }); setOcupado(true);
+    add({ de: "eu", texto: "Foto da nota", foto: arq }); setOcupado(true);
     try {
       const l = await lerNotaComIA(await fotoParaIA(arq), banco, hoje);
       if (!l) { add({ de: "vyntem", texto: "Não consegui ler um valor nessa foto. Você pode lançar à mão e anexar a foto.", rascunho: { tipo: "despesa", valor: 0, data: hoje, nota: "", origem: "foto" }, foto: arq }); return; }

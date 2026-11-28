@@ -13,11 +13,16 @@ function Svg({ children, tam = 24, style, ...r }: SVGProps<SVGSVGElement> & { ta
 }
 const L = { fill: "none" } as const;
 
-const MENU = ["inicio", "lancamentos", "pendencias", "relatorio", "calendario", "graficos", "contas", "categorias", "assistente", "ajustes", "menu", "fechar", "atualizar", "mais", "camera", "seta_e", "seta_d", "cartao", "lixeira", "editar", "check", "buscar", "filtro", "enviar", "olho", "olho_off", "conta"] as const;
+const MENU = ["sacola", "negocio", "sino", "internet", "baixar", "inicio", "lancamentos", "pendencias", "relatorio", "calendario", "graficos", "contas", "categorias", "assistente", "ajustes", "menu", "fechar", "atualizar", "mais", "camera", "seta_e", "seta_d", "cartao", "lixeira", "editar", "check", "buscar", "filtro", "enviar", "olho", "olho_off", "conta"] as const;
 export const NOMES_DE_CATEGORIA = ["mercado", "restaurante", "casa", "transporte", "saude", "presente", "viagem", "pet", "luz", "carro", "beleza", "esporte", "educacao", "lazer", "roupas", "celular", "salario", "investimento", "freela", "outros"] as const;
 export type NomeIcone = (typeof MENU)[number] | (typeof NOMES_DE_CATEGORIA)[number];
 
 const DESENHOS: Record<NomeIcone, ReactElement> = {
+  sacola: <g {...L}><path d="M5 8h14l-1 12.5H6z" /><path d="M9 8V6.5a3 3 0 0 1 6 0V8" /></g>,
+  negocio: <g {...L}><path d="M4 9.5 5.5 4h13L20 9.5a2.7 2.7 0 0 1-5.3 0 2.7 2.7 0 0 1-5.4 0A2.7 2.7 0 0 1 4 9.5z" /><path d="M5.5 12.5V20h13v-7.5M10 20v-4.5h4V20" /></g>,
+  sino: <g {...L}><path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 1.5h-15z" /><path d="M10 20.5a2.2 2.2 0 0 0 4 0" /></g>,
+  internet: <g {...L}><circle cx="12" cy="12" r="8.5" /><path d="M3.5 12h17M12 3.5c3 3 3 14 0 17M12 3.5c-3 3-3 14 0 17" /></g>,
+  baixar: <g {...L}><path d="M12 4v10M8 10.5l4 4 4-4M5 19.5h14" /></g>,
   inicio: <path d="M4 11 12 4l8 7v8.5a1 1 0 0 1-1 1h-4.5V15h-5v5.5H5a1 1 0 0 1-1-1z" />,
   lancamentos: <path d="M8 6.5h12M8 12h12M8 17.5h12M4 6.5h.01M4 12h.01M4 17.5h.01" {...L} />,
   pendencias: <g><circle cx="12" cy="12" r="8.5" {...L} /><path d="M12 7.5V12l3 2" {...L} /></g>,
